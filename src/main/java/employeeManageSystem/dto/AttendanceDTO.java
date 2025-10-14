@@ -1,4 +1,4 @@
-package employeeManageSystem.model;
+package employeeManageSystem.dto;
 
 import java.sql.Date;
 

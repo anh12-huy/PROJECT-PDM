@@ -2,9 +2,9 @@ package employeeManageSystem.api;
 
 import org.springframework.web.bind.annotation.*;
 
-import employeeManageSystem.model.HolidayDTO;
-import employeeManageSystem.model.LeaveDTO;
-import employeeManageSystem.model.LeaveTypeDTO;
+import employeeManageSystem.dto.HolidayDTO;
+import employeeManageSystem.dto.LeaveDTO;
+import employeeManageSystem.dto.LeaveTypeDTO;
 
 import java.sql.Date;
 import java.util.ArrayList;

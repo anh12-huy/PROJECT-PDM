@@ -1,4 +1,4 @@
-package employeeManageSystem.model;
+package employeeManageSystem.dto;
 
 public class ShiftDTO {
 	 	private String shiftId;

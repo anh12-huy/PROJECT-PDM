@@ -1,4 +1,4 @@
-package employeeManageSystem.model;
+package employeeManageSystem.dto;
 
 public class LeaveTypeDTO {
 	 	private String leaveTypeId;

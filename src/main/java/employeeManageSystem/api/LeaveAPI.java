@@ -2,7 +2,8 @@ package employeeManageSystem.api;
 
 import org.springframework.web.bind.annotation.*;
 
-import employeeManageSystem.model.LeaveDTO;
+import employeeManageSystem.dto.LeaveDTO;
+
 import java.util.ArrayList;
 import java.util.List;
 

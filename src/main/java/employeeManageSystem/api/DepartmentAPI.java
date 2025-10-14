@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.springframework.web.bind.annotation.*;
 
-import employeeManageSystem.model.DepartmentDTO;
-import employeeManageSystem.model.EmployeeDTO;
+import employeeManageSystem.dto.DepartmentDTO;
+import employeeManageSystem.dto.EmployeeDTO;
 
 @RestController
 public class DepartmentAPI {

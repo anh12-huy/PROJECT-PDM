@@ -1,7 +1,7 @@
 package employeeManageSystem.api;
 import org.springframework.web.bind.annotation.*;
 
-import employeeManageSystem.model.AttendanceDTO;
+import employeeManageSystem.dto.AttendanceDTO;
 
 import java.sql.Date;
 import java.util.ArrayList;
