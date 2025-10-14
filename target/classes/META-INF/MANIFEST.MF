@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Built-By: taman
+Build-Jdk: 21.0.7
+Implementation-Title: employeeManageSystem
+Implementation-Version: 0.0.1-SNAPSHOT
+Implementation-Vendor-Id: com.employeeManagingSystem
+Implementation-URL: https://projects.spring.io/spring-boot/#/spring-boot
+ -starter-parent/employeeManageSystem
+Created-By: Maven Integration for Eclipse
+

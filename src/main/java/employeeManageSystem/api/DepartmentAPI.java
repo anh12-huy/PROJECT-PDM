@@ -1,0 +1,50 @@
+package employeeManageSystem.api;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.web.bind.annotation.*;
+
+import employeeManageSystem.model.DepartmentDTO;
+import employeeManageSystem.model.EmployeeDTO;
+
+@RestController
+public class DepartmentAPI {
+	@GetMapping(value="/api/departments")
+	public List<DepartmentDTO> getAllDepartment(){
+		List<DepartmentDTO> result=new ArrayList<>();
+		return result;
+	}
+	
+	@GetMapping(value="/api/departments/{id}")
+	public DepartmentDTO getDepartment(@PathVariable String deptId) {
+		return new DepartmentDTO();
+	}
+	
+	@GetMapping(value="/api/departments/{deptId}/employees")
+	public List<EmployeeDTO> getAllEmployeeOfDepartment(@PathVariable String deptId){
+		List<EmployeeDTO> result=new ArrayList<>();
+		return result;
+	}
+	
+	@PostMapping(value="/api/departments")
+	public void createDepartment(@RequestBody DepartmentDTO dto) {
+	}
+	
+	@PostMapping(value="/api/departments/{deptId}/assign-manager/{employeeId}")
+	public void assignManager(@PathVariable String deptId,
+							  @PathVariable String employeeId) {
+		
+	}
+	
+	
+	@PutMapping(value="/api/departments/{id}")
+	public void updateDepartment(@RequestBody DepartmentDTO dto) {
+		
+	}
+	
+	
+	@DeleteMapping(value="/api/departments/{id}")
+	public void deleteDepartment(@PathVariable String deptId) {
+		
+	}
+}
