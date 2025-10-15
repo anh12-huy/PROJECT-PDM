@@ -16,14 +16,14 @@ public class LeaveTypeAPI {
 	}
 	
 	@GetMapping(value="/api/leave-types/{id}")
-	public LeaveTypeDTO getLeaveType(@PathVariable String leaveTypeId) {
+	public LeaveTypeDTO getLeaveType(@PathVariable int leaveTypeId) {
 		return new LeaveTypeDTO();
 	}
 	
 	
 	@GetMapping(value="/api/leave-types/{id}/remaining-days/{employeeId}")
-	public int getDayOffLeft(@PathVariable String leaveTypeId,
-							@PathVariable String employeeId) {
+	public int getDayOffLeft(@PathVariable int leaveTypeId,
+							@PathVariable int employeeId) {
 	return 0;
 	}
 	

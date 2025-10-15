@@ -3,14 +3,14 @@ package employeeManageSystem.dto;
 import java.sql.Date;
 
 public class HolidayDTO {
-	private String holidayId;
+	private int holidayId;
     private String holidayName;
     private Date holidayDate;
     private String description;
-	public String getHolidayId() {
+	public int getHolidayId() {
 		return holidayId;
 	}
-	public void setHolidayId(String holidayId) {
+	public void setHolidayId(int holidayId) {
 		this.holidayId = holidayId;
 	}
 	public String getHolidayName() {

@@ -3,21 +3,21 @@ package employeeManageSystem.dto;
 import java.sql.Date;
 
 public class AttendanceDTO {
-	private String attendaceId;
+	private int attendaceId;
 	private Date attendanceDate;
 	private String status;
-	private String employeeId;
+	private int employeeId;
     private String employeeName;
 
-    private String shiftId;
+    private int shiftId;
     private String shiftName;
 
     private String holidayId;
     private String holidayName;
-	public String getEmployeeId() {
+	public int getEmployeeId() {
 		return employeeId;
 	}
-	public void setEmployeeId(String employeeId) {
+	public void setEmployeeId(int employeeId) {
 		this.employeeId = employeeId;
 	}
 	public String getEmployeeName() {
@@ -26,10 +26,10 @@ public class AttendanceDTO {
 	public void setEmployeeName(String employeeName) {
 		this.employeeName = employeeName;
 	}
-	public String getShiftId() {
+	public int getShiftId() {
 		return shiftId;
 	}
-	public void setShiftId(String shiftId) {
+	public void setShiftId(int shiftId) {
 		this.shiftId = shiftId;
 	}
 	public String getShiftName() {
@@ -50,10 +50,10 @@ public class AttendanceDTO {
 	public void setHolidayName(String holidayName) {
 		this.holidayName = holidayName;
 	}
-	public String getAttendaceId() {
+	public int getAttendaceId() {
 		return attendaceId;
 	}
-	public void setAttendaceId(String id) {
+	public void setAttendaceId(int id) {
 		this.attendaceId = id;
 	}
 	public Date getAttendanceDate() {

@@ -16,12 +16,12 @@ public class DepartmentAPI {
 	}
 	
 	@GetMapping(value="/api/departments/{id}")
-	public DepartmentDTO getDepartment(@PathVariable String deptId) {
+	public DepartmentDTO getDepartment(@PathVariable int deptId) {
 		return new DepartmentDTO();
 	}
 	
 	@GetMapping(value="/api/departments/{deptId}/employees")
-	public List<EmployeeDTO> getAllEmployeeOfDepartment(@PathVariable String deptId){
+	public List<EmployeeDTO> getAllEmployeeOfDepartment(@PathVariable int deptId){
 		List<EmployeeDTO> result=new ArrayList<>();
 		return result;
 	}
@@ -31,7 +31,7 @@ public class DepartmentAPI {
 	}
 	
 	@PostMapping(value="/api/departments/{deptId}/assign-manager/{employeeId}")
-	public void assignManager(@PathVariable String deptId,
+	public void assignManager(@PathVariable int deptId,
 							  @PathVariable String employeeId) {
 		
 	}
@@ -44,7 +44,7 @@ public class DepartmentAPI {
 	
 	
 	@DeleteMapping(value="/api/departments/{id}")
-	public void deleteDepartment(@PathVariable String deptId) {
+	public void deleteDepartment(@PathVariable int deptId) {
 		
 	}
 }

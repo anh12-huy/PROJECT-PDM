@@ -1,14 +1,16 @@
 package employeeManageSystem.dto;
 
+import java.sql.Date;
+
 public class ShiftDTO {
-	 	private String shiftId;
+	 	private int shiftId;
 	    private String shiftName;
-	    private String startTime;
-	    private String endTime;
-		public String getShiftId() {
+	    private Date startTime;
+	    private Date endTime;
+		public int getShiftId() {
 			return shiftId;
 		}
-		public void setShiftId(String shiftId) {
+		public void setShiftId(int shiftId) {
 			this.shiftId = shiftId;
 		}
 		public String getShiftName() {
@@ -17,16 +19,16 @@ public class ShiftDTO {
 		public void setShiftName(String shiftName) {
 			this.shiftName = shiftName;
 		}
-		public String getStartTime() {
+		public Date getStartTime() {
 			return startTime;
 		}
-		public void setStartTime(String startTime) {
+		public void setStartTime(Date startTime) {
 			this.startTime = startTime;
 		}
-		public String getEndTime() {
+		public Date getEndTime() {
 			return endTime;
 		}
-		public void setEndTime(String endTime) {
+		public void setEndTime(Date endTime) {
 			this.endTime = endTime;
 		}
 }

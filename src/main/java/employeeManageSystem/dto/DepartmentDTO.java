@@ -1,15 +1,15 @@
 package employeeManageSystem.dto;
 
 public class DepartmentDTO {
-	private String departmentId;
+	private int departmentId;
 	private String departmentName;
 	private String location;
 	private EmployeeDTO manager;
 	
-	public String getDepartmentId() {
+	public int getDepartmentId() {
 		return departmentId;
 	}
-	public void setDepartmentId(String departmentId) {
+	public void setDepartmentId(int departmentId) {
 		this.departmentId = departmentId;
 	}
 	public String getDepartmentName() {

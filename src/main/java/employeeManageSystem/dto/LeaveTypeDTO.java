@@ -1,13 +1,13 @@
 package employeeManageSystem.dto;
 
 public class LeaveTypeDTO {
-	 	private String leaveTypeId;
+	 	private int leaveTypeId;
 	    private String leaveTypeName;
-	    private Integer maxDaysAllowed;
-		public String getLeaveTypeId() {
+	    private int maxDaysAllowed;
+		public int getLeaveTypeId() {
 			return leaveTypeId;
 		}
-		public void setLeaveTypeId(String leaveTypeId) {
+		public void setLeaveTypeId(int leaveTypeId) {
 			this.leaveTypeId = leaveTypeId;
 		}
 		public String getLeaveTypeName() {
@@ -16,10 +16,10 @@ public class LeaveTypeDTO {
 		public void setLeaveTypeName(String leaveTypeName) {
 			this.leaveTypeName = leaveTypeName;
 		}
-		public Integer getMaxDaysAllowed() {
+		public int getMaxDaysAllowed() {
 			return maxDaysAllowed;
 		}
-		public void setMaxDaysAllowed(Integer maxDaysAllowed) {
+		public void setMaxDaysAllowed(int maxDaysAllowed) {
 			this.maxDaysAllowed = maxDaysAllowed;
 		}
 }

@@ -28,19 +28,19 @@ public class EmployeeAPI {
 	}
 	
 	@GetMapping(value="/api/employees/{id}")
-	public EmployeeDTO getEmployeeInfo(@PathVariable String EmployeeId) {
+	public EmployeeDTO getEmployeeInfo(@PathVariable int EmployeeId) {
 		EmployeeDTO empl = new EmployeeDTO();
 		return empl;
 	}
 	
 	@GetMapping(value="/api/employees/{id}/attendance")
-	public AttendanceDTO getEmployeeAttendace(@PathVariable String EmployeeId) {
+	public AttendanceDTO getEmployeeAttendace(@PathVariable int EmployeeId) {
 		AttendanceDTO attendance = new AttendanceDTO();
 		return attendance;
 	}
 	
 	@GetMapping(value="/api/employees/{id}/leave")
-	public LeaveDTO getEmployeeLeave(@PathVariable String EmployeeId) {
+	public LeaveDTO getEmployeeLeave(@PathVariable int EmployeeId) {
 		LeaveDTO leave = new LeaveDTO();
 		return leave;
 	}
@@ -51,25 +51,25 @@ public class EmployeeAPI {
 	}
 	
 	@PostMapping(value="/api/employees/{id}/assign-department/{deptId}")
-	public void assignDepartment(@PathVariable String EmployeeId,
-								 @PathVariable String deptId) {
+	public void assignDepartment(@PathVariable int EmployeeId,
+								 @PathVariable int deptId) {
 		
 	}
 	
 	@PostMapping(value="/api/employees/{id}/assign-shift/{shiftId}")
-	public void assignShift(@PathVariable String EmployeeId,
-							@PathVariable String shiftId) {
+	public void assignShift(@PathVariable int EmployeeId,
+							@PathVariable int shiftId) {
 		
 	}
 	
 	
 	@PutMapping(value="/api/employees/{id}")
-	public void updateEmployeeInfo(@PathVariable String EmployeeId,
+	public void updateEmployeeInfo(@PathVariable int EmployeeId,
 								   @RequestBody EmployeeDTO dto	) {
 	}
 	
 	@DeleteMapping(value="/api/employees/{id}")
-	public void deleteEmployee(@PathVariable String EmployeeId) {
+	public void deleteEmployee(@PathVariable int EmployeeId) {
 		
 	}
 	

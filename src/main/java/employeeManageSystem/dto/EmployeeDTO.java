@@ -3,7 +3,7 @@ package employeeManageSystem.dto;
 import java.sql.Date;
 
 public class EmployeeDTO {
-	private String id;
+	private int id;
 	private String name;
 	private String Ssn;
 	private String address;
@@ -13,13 +13,13 @@ public class EmployeeDTO {
 	private Date dateOfBirth;
 	private Long departmentId;   
     private String departmentName;
-    private String userId;        
+    private int userId;        
     private String username;
     
-	public String getId() {
+	public int getId() {
 		return id;
 	}
-	public void setId(String id) {
+	public void setId(int id) {
 		this.id = id;
 	}
 	public String getName() {
@@ -76,10 +76,10 @@ public class EmployeeDTO {
 	public void setDepartmentName(String departmentName) {
 		this.departmentName = departmentName;
 	}
-	public String getUserId() {
+	public int getUserId() {
 		return userId;
 	}
-	public void setUserId(String userId) {
+	public void setUserId(int userId) {
 		this.userId = userId;
 	}
 	public String getUsername() {

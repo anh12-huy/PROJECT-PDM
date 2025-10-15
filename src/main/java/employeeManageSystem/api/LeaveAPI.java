@@ -17,12 +17,12 @@ public class LeaveAPI {
 	}
 	
 	@GetMapping(value="/api/leaves/{id}")
-	public LeaveDTO getLeave(@PathVariable String leaveId) {
+	public LeaveDTO getLeave(@PathVariable int leaveId) {
 		return new LeaveDTO();
 	}
 	
 	@GetMapping(value="/api/leaves/employee/{employeeId}")
-	public LeaveDTO getLeaveOfEmployee(@PathVariable String employeeId) {
+	public LeaveDTO getLeaveOfEmployee(@PathVariable int employeeId) {
 		return new LeaveDTO();
 	}
 	
@@ -38,12 +38,12 @@ public class LeaveAPI {
 	}
 	
 	@PostMapping(value="/api/leaves/{id}/approve")
-	public void approveLeave(@PathVariable String leaveId) {
+	public void approveLeave(@PathVariable int leaveId) {
 		
 	}
 	
 	@PostMapping(value="/api/leaves/{id}/reject")
-	public void rejectLeave(@PathVariable String leaveId) {
+	public void rejectLeave(@PathVariable int leaveId) {
 		
 	}
 	
@@ -54,7 +54,7 @@ public class LeaveAPI {
 	}
 	
 	@DeleteMapping(value="/api/leaves/{id}")
-	public void deleteLeave() {
+	public void deleteLeave(@PathVariable int leaveId) {
 		
 	}
 }

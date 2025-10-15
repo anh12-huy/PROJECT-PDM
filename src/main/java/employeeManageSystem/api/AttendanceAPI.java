@@ -16,12 +16,12 @@ public class AttendanceAPI {
 	}
 	
 	@GetMapping(value="/api/attendances/{id}")
-	public AttendanceDTO getAttendance(@PathVariable String attendanceId) {
+	public AttendanceDTO getAttendance(@PathVariable int attendanceId) {
 		return new AttendanceDTO();
 	}
 	
 	@GetMapping(value="/api/attendances/employee/{employeeId}")
-	public List<AttendanceDTO> getAttendanceOfEmployee(@PathVariable String employeeId){
+	public List<AttendanceDTO> getAttendanceOfEmployee(@PathVariable int employeeId){
 		List<AttendanceDTO> result=new ArrayList<>();
 		return result;
 	}
@@ -43,12 +43,12 @@ public class AttendanceAPI {
 	}
 	
 	@PutMapping(value="/api/attendances/{id}")
-	public void updateAttendance(@PathVariable String attendanceId) {
+	public void updateAttendance(@PathVariable int attendanceId) {
 		
 	}
 	
 	@DeleteMapping(value="/api/attendances/{id}")
-public void deleteAttendance(@PathVariable String attendanceId) {
+	public void deleteAttendance(@PathVariable int attendanceId) {
 		
 	}
 }

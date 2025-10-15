@@ -1,33 +1,35 @@
 package employeeManageSystem.dto;
 
+import java.sql.Date;
+
 public class LeaveDTO {
-	 	private String leaveId;
-	    private String startDate;
-	    private String endDate;
+	 	private int leaveId;
+	    private Date startDate;
+	    private Date endDate;
 	    private String reason;
 	    private String status;
 
-	    private String employeeId;
+	    private int employeeId;
 	    private String employeeName;
 
-	    private String leaveTypeId;
+	    private int leaveTypeId;
 	    private String leaveTypeName;
-		public String getLeaveId() {
+		public int getLeaveId() {
 			return leaveId;
 		}
-		public void setLeaveId(String leaveId) {
+		public void setLeaveId(int leaveId) {
 			this.leaveId = leaveId;
 		}
-		public String getStartDate() {
+		public Date getStartDate() {
 			return startDate;
 		}
-		public void setStartDate(String startDate) {
+		public void setStartDate(Date startDate) {
 			this.startDate = startDate;
 		}
-		public String getEndDate() {
+		public Date getEndDate() {
 			return endDate;
 		}
-		public void setEndDate(String endDate) {
+		public void setEndDate(Date endDate) {
 			this.endDate = endDate;
 		}
 		public String getReason() {
@@ -42,10 +44,10 @@ public class LeaveDTO {
 		public void setStatus(String status) {
 			this.status = status;
 		}
-		public String getEmployeeId() {
+		public int getEmployeeId() {
 			return employeeId;
 		}
-		public void setEmployeeId(String employeeId) {
+		public void setEmployeeId(int employeeId) {
 			this.employeeId = employeeId;
 		}
 		public String getEmployeeName() {
@@ -54,10 +56,10 @@ public class LeaveDTO {
 		public void setEmployeeName(String employeeName) {
 			this.employeeName = employeeName;
 		}
-		public String getLeaveTypeId() {
+		public int getLeaveTypeId() {
 			return leaveTypeId;
 		}
-		public void setLeaveTypeId(String leaveTypeId) {
+		public void setLeaveTypeId(int leaveTypeId) {
 			this.leaveTypeId = leaveTypeId;
 		}
 		public String getLeaveTypeName() {

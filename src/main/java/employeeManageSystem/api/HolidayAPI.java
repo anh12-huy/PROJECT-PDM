@@ -20,7 +20,7 @@ public class HolidayAPI {
 	}	
 	
 	@GetMapping(value="/api/holidays/{id}")
-	public HolidayDTO getHoliday(@PathVariable String id) {
+	public HolidayDTO getHoliday(@PathVariable int id) {
 		return new HolidayDTO();
 	}
 	
@@ -37,12 +37,12 @@ public class HolidayAPI {
 	
 	@PutMapping(value="/api/holidays/{id}")
 	public void updateHoliday(@RequestBody HolidayDTO dto,
-							  @PathVariable String holidayId) {
+							  @PathVariable int holidayId) {
 		
 	}
 	
 	@DeleteMapping(value="/api/holidays/{id}")
-	public void deleteHoliday(@PathVariable String holidayId) {
+	public void deleteHoliday(@PathVariable int holidayId) {
 	
 	
 	}

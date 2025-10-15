@@ -17,12 +17,12 @@ public class ShiftAPI {
 	}
 	
 	@GetMapping(value="/api/shifts/{id}")
-	public ShiftDTO getShift(@PathVariable String shiftId) {
+	public ShiftDTO getShift(@PathVariable int shiftId) {
 		return new ShiftDTO();
 	}
 	
 	@GetMapping(value="/api/shifts/{shiftId}/employees")
-	public List<EmployeeDTO> getEmployeeOfShift(@PathVariable String shiftId) {
+	public List<EmployeeDTO> getEmployeeOfShift(@PathVariable int shiftId) {
 		List<EmployeeDTO> result=new ArrayList<>();
 		return result;
 	}
@@ -39,20 +39,20 @@ public class ShiftAPI {
 	}
 	
 	@PostMapping(value="/api/shifts/{shiftId}/assign-employee/{employeeId}")
-	public void assignEmployeeToShift(@PathVariable String shiftId,
-									  @PathVariable String employeeId) {
+	public void assignEmployeeToShift(@PathVariable int shiftId,
+									  @PathVariable int employeeId) {
 		
 	}
 	
 	@PutMapping(value="/api/shifts/{id}")
 	public void updateShift(@RequestBody ShiftDTO dto,
-							@PathVariable String shiftId) {
+							@PathVariable int shiftId) {
 		
 	}
 	
 	@DeleteMapping(value="/api/shifts/{id}")
 	public void deleteShift(@RequestBody ShiftDTO dto,
-							@PathVariable String shiftId) {
+							@PathVariable int shiftId) {
 		
 	}
 	
