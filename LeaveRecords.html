@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leave Records - Employee Attendance System</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="js/api.js"></script>
+    <script type="module">
+        import { checkLogin } from "./js/App.js";
+        checkLogin();
+    </script>
+</head>
+
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>🏢 Attendance</h2>
+                <p>Management System</p>
+            </div>
+            <nav class="sidebar-nav">
+                <li><a href="Dashboard.html">📊 Dashboard</a></li>
+                <li><a href="Employees.html">👥 Employees</a></li>
+                <li><a href="Attendance.html">✓ Attendance</a></li>
+                <li><a href="Department.html">🏭 Department</a></li>
+                <li><a href="Shifts.html">⏰ Shifts</a></li>
+                <li><a href="Holiday.html">🎉 Holiday</a></li>
+                <li><a href="LeaveRecords.html" class="active">📋 Leave Records</a></li>
+            </nav>
+            <div class="sidebar-footer">
+                <button id="logoutBtn" class="btn btn-danger btn-block">Logout</button>
+            </div>
+        </aside>
+        <main class="main-content">
+            <div class="topbar">
+                <div class="topbar-title">
+                    <h1>Leave Records</h1>
+                </div>
+                <div class="user-info">
+                    <div class="user-avatar">A</div>
+                    <div class="user-details">
+                        <span class="user-name">Admin</span>
+                        <span class="user-role">Administrator</span>
+                    </div>
+                </div>
+            </div>
+            <div class="card mb-10">
+                <div class="card-header">
+                    <h3>📋 Submit Leave Request</h3>
+                </div>
+                <div class="card-body">
+                    <form id="leaveForm" class="form-row">
+                        <div class="form-group">
+                            <label>Employee</label>
+                            <select id="empId" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Leave Type</label>
+                            <select id="typeId" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Start Date</label>
+                            <input type="date" id="startDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label>End Date</label>
+                            <input type="date" id="endDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Reason</label>
+                            <textarea id="reason" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary btn-block">Submit Leave</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h3>📊 Leave Records</h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Employee</th>
+                                    <th>Leave Type ID</th>
+                                    <th>Start Date</th>
+                                    <th>End Date</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="leaveList">
+                                <tr>
+                                    <td colspan="7" style="text-align: center;">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script type="module">
+        import { apiGet,apiPost } from "./js/api.js";
+        document.getElementById('logoutBtn').onclick = () => { localStorage.clear(); location.href = 'UserLogin.html'; };
+        document.getElementById('leaveForm').onsubmit = async (e) => {
+            e.preventDefault();
+            try {
+                const leaveData = {
+                    employeeId: parseInt(document.getElementById('empId').value),
+                    leaveTypeId: parseInt(document.getElementById('typeId').value),
+                    startDate: document.getElementById('startDate').value,
+                    endDate: document.getElementById('endDate').value,
+                    reason: document.getElementById('reason').value
+                };
+
+                await apiPost('/leaves', leaveData);
+                alert("Leave request submitted!");
+
+                load();
+            } catch (err) {
+                alert("Error submitting leave: " + err.message);
+            }
+        };
+
+        window.approveLeave = async (id) => {
+            if (!confirm("Approve this leave?")) return;
+
+            try {
+                await apiPost(`/leaves/${id}/approve`);
+                alert("Leave approved!");
+                load();
+            } catch (err) {
+                alert("Approve failed: " + err.message);
+            }
+        };
+
+        async function load() {
+            try {
+                const emps = await apiGet('/employees');
+                const leaves = await apiGet('/leaves');
+                if (Array.isArray(emps)) document.getElementById('empId').innerHTML = '<option>Select Employee</option>' + emps.map(e => `<option value="${e.employeeId}">${e.firstName} ${e.lastName}</option>`).join('');
+                document.getElementById('typeId').innerHTML = `
+                    <option value="1">Annual</option>
+                    <option value="2">Medical</option>
+                    <option value="3">Personal</option>
+                `;
+                if (Array.isArray(leaves)) {
+                    document.getElementById('leaveList').innerHTML = leaves.map(l => `
+                        <tr>
+                            <td>${l.leaveId}</td>
+                            <td>${l.employeeId}</td>
+                            <td>${l.leaveTypeId}</td>
+                            <td>${l.startDate}</td>
+                            <td>${l.endDate}</td>
+                            <td><span class="badge badge-warning">${l.status || 'Pending'}</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-success" onclick="approveLeave(${l.leaveId})">Approve</button>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (e) { console.error(e); }
+        }
+        load();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Holiday - Employee Attendance System</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="js/api.js"></script>
+    <script type="module">
+        import { checkLogin } from "./js/App.js";
+        checkLogin();
+    </script>
+</head>
+
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>🏢 Attendance</h2>
+                <p>Management System</p>
+            </div>
+            <nav class="sidebar-nav">
+                <li><a href="Dashboard.html">📊 Dashboard</a></li>
+                <li><a href="Employees.html">👥 Employees</a></li>
+                <li><a href="Attendance.html">✓ Attendance</a></li>
+                <li><a href="Department.html">🏭 Department</a></li>
+                <li><a href="Shifts.html">⏰ Shifts</a></li>
+                <li><a href="Holiday.html" class="active">🎉 Holiday</a></li>
+                <li><a href="LeaveRecords.html">📋 Leave Records</a></li>
+            </nav>
+            <div class="sidebar-footer">
+                <button id="logoutBtn" class="btn btn-danger btn-block">Logout</button>
+            </div>
+        </aside>
+        <main class="main-content">
+            <div class="topbar">
+                <div class="topbar-title">
+                    <h1>Holidays</h1>
+                </div>
+                <div class="user-info">
+                    <div class="user-avatar">A</div>
+                    <div class="user-details">
+                        <span class="user-name">Admin</span>
+                        <span class="user-role">Administrator</span>
+                    </div>
+                </div>
+            </div>
+            <div class="card mb-10">
+                <div class="card-header">
+                    <h3>🎉 Add Holiday</h3>
+                </div>
+                <div class="card-body">
+                    <form id="holidayForm" class="form-row">
+                        <div class="form-group">
+                            <label>Holiday Name</label>
+                            <input type="text" id="holidayName" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Holiday Date</label>
+                            <input type="date" id="holidayDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Description</label>
+                            <textarea id="description" style="max-width: 100%;"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary btn-block">Add Holiday</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h3>📅 Holiday List</h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Holiday Name</th>
+                                    <th>Date</th>
+                                    <th>Description</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="holidayList">
+                                <tr>
+                                    <td colspan="5" style="text-align: center;">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script type="module">
+        import { apiGet } from "./js/api.js";
+        document.getElementById('logoutBtn').onclick = () => { localStorage.clear(); location.href = 'UserLogin.html'; };
+        document.getElementById('holidayForm').onsubmit = async (e) => { e.preventDefault(); alert('Save to be implemented'); };
+        async function load() {
+            try {
+                const holidays = await apiGet('/holiday');
+                if (Array.isArray(holidays)) {
+                    document.getElementById('holidayList').innerHTML = holidays.map(h => `<tr><td>${h.holidayID}</td><td>${h.holidayName}</td><td>${h.holidayDate}</td><td>${h.description || '-'}</td><td><button class="btn btn-sm btn-danger" onclick="alert('Delete to be implemented')">Delete</button></td></tr>`).join('');
+                }
+            } catch (e) { console.error(e); }
+        }
+        load();
+    </script>
+</body>
+
+</html>

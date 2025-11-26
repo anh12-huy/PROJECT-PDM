@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance - Employee Attendance System</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="js/api.js"></script>
+    <script type="module">
+        import { checkLogin } from "./js/App.js";
+        checkLogin();
+    </script>
+</head>
+
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>🏢 Attendance</h2>
+                <p>Management System</p>
+            </div>
+            <nav class="sidebar-nav">
+                <li><a href="Dashboard.html">📊 Dashboard</a></li>
+                <li><a href="Employees.html">👥 Employees</a></li>
+                <li><a href="Attendance.html" class="active">✓ Attendance</a></li>
+                <li><a href="Department.html">🏭 Department</a></li>
+                <li><a href="Shifts.html">⏰ Shifts</a></li>
+                <li><a href="Holiday.html">🎉 Holiday</a></li>
+                <li><a href="LeaveRecords.html">📋 Leave Records</a></li>
+            </nav>
+            <div class="sidebar-footer">
+                <button id="logoutBtn" class="btn btn-danger btn-block">Logout</button>
+            </div>
+        </aside>
+        <main class="main-content">
+            <div class="topbar">
+                <div class="topbar-title">
+                    <h1>Attendance Records</h1>
+                </div>
+                <div class="user-info">
+                    <div class="user-avatar">A</div>
+                    <div class="user-details">
+                        <span class="user-name">Admin</span>
+                        <span class="user-role">Administrator</span>
+                    </div>
+                </div>
+            </div>
+            <div class="card mb-10">
+                <div class="card-header">
+                    <h3>📋 Mark Attendance</h3>
+                </div>
+                <div class="card-body">
+                    <form id="attendanceForm" class="form-row-3">
+                        <div class="form-group">
+                            <label>Employee</label>
+                            <select id="empId" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Work Date</label>
+                            <input type="date" id="workDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Shift</label>
+                            <select id="shiftId" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Check In</label>
+                            <input type="datetime-local" id="checkIn" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Check Out</label>
+                            <input type="datetime-local" id="checkOut">
+                        </div>
+                        <div class="form-group">
+                            <label>&nbsp;</label>
+                            <button type="submit" class="btn btn-primary btn-block">Add Attendance</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h3>📊 Attendance List</h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Employee</th>
+                                    <th>Date</th>
+                                    <th>Check In</th>
+                                    <th>Check Out</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="attendanceList">
+                                <tr>
+                                    <td colspan="5" style="text-align: center;">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script type="module">
+        import { apiGet, apiPost } from "./js/api.js";
+        document.getElementById('logoutBtn').onclick = () => { localStorage.clear(); location.href = 'UserLogin.html'; };
+        document.getElementById('attendanceForm').onsubmit = async (e) => { e.preventDefault(); alert('Save to be implemented'); };
+        async function load() {
+            try {
+                const emps = await apiGet('/employees');
+                const shifts = await apiGet('/shifts');
+                const attendance = await apiGet('/attendance');
+                document.getElementById('empId').innerHTML = emps.map(e => `<option value="${e.employeeID}">${e.firstName} ${e.lastName}</option>`).join('');
+                document.getElementById('shiftId').innerHTML = shifts.map(s => `<option value="${s.shiftID}">${s.shiftName}</option>`).join('');
+                document.getElementById('attendanceList').innerHTML = attendance.map(a => `<tr><td>${a.employeeId}</td><td>${a.workDate}</td><td>${a.checkIn}</td><td>${a.checkOut}</td><td><span class="badge badge-success">Present</span></td></tr>`).join('');
+            } catch (e) { console.error(e); }
+        }
+        load();
+    </script>
+</body>
+
+</html>

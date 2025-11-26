@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Test Helper</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body style="background: #f8fafc; padding: 40px;">
+    <div style="max-width: 800px; margin: 0 auto;">
+        <div class="card">
+            <div class="card-header">
+                <h3>🔧 API Test & Debug Helper</h3>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <strong>Backend Status:</strong> Running on http://localhost:8080<br>
+                    <strong>Frontend Server:</strong> Running on http://localhost:8081
+                </div>
+
+                <h4 style="margin-top: 20px; margin-bottom: 10px;">📝 Test Credentials</h4>
+                <p>The database has been initialized with test data. Use these credentials to login:</p>
+                <table class="table" style="font-size: 13px;">
+                    <thead>
+                        <tr>
+                            <th>UserID</th>
+                            <th>Username</th>
+                            <th>Password</th>
+                            <th>Role</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>nnahuy</td>
+                            <td>123456</td>
+                            <td><span class="badge badge-success">Admin</span></td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>ndhai</td>
+                            <td>123456</td>
+                            <td><span class="badge badge-info">Employee</span></td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>ntan</td>
+                            <td>123456</td>
+                            <td><span class="badge badge-warning">Manager</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4 style="margin-top: 20px; margin-bottom: 10px;">🔑 How to Login</h4>
+                <ol style="line-height: 1.8;">
+                    <li>Go to <a href="UserLogin.html" class="btn btn-primary btn-sm"
+                            style="display: inline-block; margin: 0;">UserLogin.html</a></li>
+                    <li>Enter the <strong>UserID</strong> (e.g., "1") in the username field</li>
+                    <li>Enter the <strong>Password</strong> (e.g., "123456")</li>
+                    <li>Click the login button</li>
+                    <li>Your token will be saved in localStorage automatically</li>
+                </ol>
+
+                <h4 style="margin-top: 20px; margin-bottom: 10px;">✅ After Login</h4>
+                <p>You'll be able to access all protected pages:</p>
+                <ul style="line-height: 2;">
+                    <li><a href="Dashboard.html">📊 Dashboard</a> - View statistics and overview</li>
+                    <li><a href="Employees.html">👥 Employees</a> - Manage employee records</li>
+                    <li><a href="Attendance.html">✓ Attendance</a> - Mark attendance</li>
+                    <li><a href="Department.html">🏭 Department</a> - Manage departments</li>
+                    <li><a href="Shifts.html">⏰ Shifts</a> - Manage work shifts</li>
+                    <li><a href="Holiday.html">🎉 Holiday</a> - Manage holidays</li>
+                    <li><a href="LeaveRecords.html">📋 Leave Records</a> - Manage leave requests</li>
+                </ul>
+
+                <h4 style="margin-top: 20px; margin-bottom: 10px;">🐛 Troubleshooting</h4>
+                <div style="background: #f3f4f6; padding: 15px; border-radius: 6px; font-size: 13px; line-height: 1.8;">
+                    <strong>Problem:</strong> API returns 401 Unauthorized<br>
+                    <strong>Solution:</strong> You need to login first. The token is automatically saved in
+                    localStorage. Clear it if needed and login again.
+                    <br><br>
+                    <strong>Problem:</strong> CORS errors in browser console<br>
+                    <strong>Solution:</strong> The backend CORS is configured for localhost:8081. Make sure you're
+                    accessing the frontend from exactly that URL.
+                    <br><br>
+                    <strong>Problem:</strong> Backend not responding<br>
+                    <strong>Solution:</strong> Check if Java process is running on port 8080. Run: <code
+                        style="background: #e5e7eb; padding: 2px 6px; border-radius: 3px;">netstat -ano | Select-String "8080"</code>
+                </div>
+
+                <h4 style="margin-top: 20px; margin-bottom: 10px;">📱 API Endpoints</h4>
+                <p style="font-size: 13px;">
+                    <strong>Base URL:</strong> http://localhost:8080/api<br>
+                    <strong>Auth:</strong> Add header <code
+                        style="background: #e5e7eb; padding: 2px 6px; border-radius: 3px;">Authorization: {token}</code>
+                    to all requests (except login/register)
+                </p>
+                <div
+                    style="background: #f3f4f6; padding: 10px; border-radius: 6px; font-size: 12px; font-family: monospace; line-height: 1.6; margin-top: 10px;">
+                    POST /api/auth/login - Login<br>
+                    POST /api/auth/register - Register<br>
+                    GET /api/employees - List employees<br>
+                    GET /api/department - List departments<br>
+                    GET /api/attendance - List attendance<br>
+                    GET /api/holiday - List holidays<br>
+                    GET /api/shifts - List shifts<br>
+                    GET /api/leaverecords - List leave records
+                </div>
+
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+                    <button onclick="testConnection()" class="btn btn-primary">Test API Connection</button>
+                    <button onclick="clearStorage()" class="btn btn-warning">Clear Stored Token</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function testConnection() {
+            try {
+                alert("Testing API connection...");
+                // Test login endpoint without auth
+                const response = await fetch("http://localhost:8080/api/auth/login", {
+                    method: "OPTIONS",
+                    headers: {
+                        "Access-Control-Request-Method": "POST",
+                        "Access-Control-Request-Headers": "content-type"
+                    }
+                });
+                alert("✅ API is reachable! CORS is working correctly.");
+            } catch (error) {
+                alert("❌ API Connection Failed: " + error.message);
+            }
+        }
+
+        function clearStorage() {
+            localStorage.clear();
+            alert("✅ Stored token cleared. You'll need to login again.");
+        }
+    </script>
+</body>
+
+</html>
