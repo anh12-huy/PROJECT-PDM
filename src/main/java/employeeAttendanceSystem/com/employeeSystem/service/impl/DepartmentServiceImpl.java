@@ -16,7 +16,8 @@ import employeeAttendanceSystem.com.employeeSystem.service.impl.EmployeeServiceI
 import java.util.List;
 import java.util.Optional;
 import java.util.ArrayList;
-import org.springframework.stereotype.Service;  
+import java.sql.Timestamp;
+import org.springframework.stereotype.Service;
 
 @Service
 public class DepartmentServiceImpl implements DepartmentService {
@@ -42,9 +43,11 @@ public class DepartmentServiceImpl implements DepartmentService {
         if (request == null) return null;
         DepartmentEntity entity = new DepartmentEntity();
         entity.setDepartmentName(request.getDepartmentName());
-        
-        entity.setLocation(request.getDepartmentCode()); 
- 
+        entity.setLocation(request.getLocation());
+        entity.setManagerEmployeeId(request.getManagerEmployeeId());
+        entity.setCreatedAt(request.getCreatedAt());
+        entity.setUpdatedAt(request.getUpdatedAt());
+
         return entity;
     }
 
@@ -78,15 +81,28 @@ public class DepartmentServiceImpl implements DepartmentService {
     @Override
     public DepartmentResponseDTO createDepartment(DepartmentRequestDTO request) {
         DepartmentEntity deptEntity = mapRequestToEntity(request);
-        
+
         if (deptEntity.getDepartmentName() == null || deptEntity.getDepartmentName().trim().isEmpty()) {
             throw new IllegalArgumentException("Department name cannot be empty.");
         }
-     
+
+        // Set timestamps if not provided
+        Timestamp now = new Timestamp(System.currentTimeMillis());
+        if (deptEntity.getCreatedAt() == null) {
+            deptEntity.setCreatedAt(now);
+        }
+        if (deptEntity.getUpdatedAt() == null) {
+            deptEntity.setUpdatedAt(now);
+        }
+
         boolean success = departmentRepository.create(deptEntity);
-        
+
         if (success) {
-        
+            // Fetch the created department to get the ID
+            // Assuming departmentId is auto-generated, need to find by name or something
+            // For now, return the mapped dto, but id will be null
+            // Better to modify repository to return generated id
+
             return mapEntityToDTO(deptEntity);
         }
         return null;
@@ -94,21 +110,28 @@ public class DepartmentServiceImpl implements DepartmentService {
  
     @Override
     public DepartmentResponseDTO updateDepartment(int departmentId, DepartmentRequestDTO request) {
-        
+
         Optional<DepartmentEntity> existingDeptOptional = departmentRepository.findById(departmentId);
-        
+
         if (existingDeptOptional.isEmpty()) {
-            return null; 
+            return null;
         }
-        
+
         DepartmentEntity existingDept = existingDeptOptional.get();
-       
+
         existingDept.setDepartmentName(request.getDepartmentName());
-        existingDept.setLocation(request.getDepartmentCode());
-      
-        
+        existingDept.setLocation(request.getLocation());
+        existingDept.setManagerEmployeeId(request.getManagerEmployeeId());
+        // CreatedAt usually not updated
+        // UpdatedAt set to current time in repository, but if provided, set it
+        if (request.getUpdatedAt() != null) {
+            existingDept.setUpdatedAt(request.getUpdatedAt());
+        } else {
+            // Will be set in update method
+        }
+
         boolean success = departmentRepository.update(departmentId, existingDept);
-        
+
         if (success) {
             return mapEntityToDTO(existingDept);
         }

@@ -100,6 +100,7 @@ public class AttendanceServiceImpl implements AttendanceService {
         AttendanceEntity entity = new AttendanceEntity();
         entity.setEmployeeID(employeeId);
         entity.setWorkDate(Date.valueOf(ts.toLocalDate()));
+        entity.setShiftID(dto.getShiftId());
         entity.setCheckIn(Timestamp.valueOf(ts));
         entity.setStatus(AttendanceStatus.PRESENT);
 

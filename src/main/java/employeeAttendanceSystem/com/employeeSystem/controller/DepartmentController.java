@@ -5,9 +5,10 @@ import employeeAttendanceSystem.com.employeeSystem.model.DepartmentAssignmentDTO
 import employeeAttendanceSystem.com.employeeSystem.model.DepartmentRequestDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-@CrossOrigin(origins = "http://localhost:8081")
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/departments")
 @RequiredArgsConstructor
@@ -26,16 +27,19 @@ public class DepartmentController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
     public ResponseEntity<?> create(@RequestBody DepartmentRequestDTO department) {
         return ResponseEntity.ok(departmentService.createDepartment(department));
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
     public ResponseEntity<?> update(@PathVariable int id, @RequestBody DepartmentRequestDTO department) {
         return ResponseEntity.ok(departmentService.updateDepartment(id, department));
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
     public ResponseEntity<?> delete(@PathVariable int id) {
         departmentService.deleteDepartment(id);
         return ResponseEntity.noContent().build();

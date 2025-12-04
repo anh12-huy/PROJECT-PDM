@@ -10,7 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@CrossOrigin(origins = "http://localhost:8081")
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/leaves")
 @RequiredArgsConstructor
@@ -28,7 +28,7 @@ public class LeaveRecordController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getById(@PathVariable int id) {
-        return ResponseEntity.ok(leaveRecordService.getLeaveRecordById(id));
+        return ResponseEntity.ok(leaveRecordService.getLeaveRecordsByEmployee(id));
     }
 
     @PostMapping
@@ -63,7 +63,7 @@ public class LeaveRecordController {
     @PostMapping("/{id}/reject")
     public ResponseEntity<?> reject(@PathVariable int id) {
         boolean success = leaveRecordService.denyLeaveRecord(id);
-        return ResponseEntity.ok(success ? "Leave rejected" : "Failed to reject leave");
+        return ResponseEntity.ok(Map.of("success", success, "message", success ? "Leave rejected" : "Failed to reject leave"));
     }
 
     @GetMapping("/employee/{employeeId}")

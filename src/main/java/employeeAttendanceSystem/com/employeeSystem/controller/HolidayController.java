@@ -4,9 +4,10 @@ import employeeAttendanceSystem.com.employeeSystem.service.HolidayService;
 import employeeAttendanceSystem.com.employeeSystem.model.HolidayRequestDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-@CrossOrigin(origins = "http://localhost:8081")
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/holidays")
 @RequiredArgsConstructor
@@ -24,16 +25,19 @@ public class HolidayController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
     public ResponseEntity<?> create(@RequestBody HolidayRequestDTO holiday) {
         return ResponseEntity.ok(holidayService.createHoliday(holiday));
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
     public ResponseEntity<?> update(@PathVariable int id, @RequestBody HolidayRequestDTO holiday) {
         return ResponseEntity.ok(holidayService.updateHoliday(id, holiday));
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
     public ResponseEntity<?> delete(@PathVariable int id) {
         boolean success = holidayService.deleteHoliday(id);
         return success ? ResponseEntity.noContent().build() : ResponseEntity.badRequest().build();

@@ -46,6 +46,7 @@ employeeAttendanceSystem\com\employeeSystem\repository\entity\AttendanceEntity.c
 employeeAttendanceSystem\com\employeeSystem\repository\ShiftRepository.class
 employeeAttendanceSystem\com\employeeSystem\model\LeaveRecordResponseDTO.class
 employeeAttendanceSystem\com\employeeSystem\service\impl\ShiftServiceImpl.class
+employeeAttendanceSystem\com\employeeSystem\service\AuthenticationService.class
 employeeAttendanceSystem\com\employeeSystem\repository\DepartmentRepository.class
 employeeAttendanceSystem\com\employeeSystem\repository\impl\HolidayRepositoryimpl.class
 employeeAttendanceSystem\com\employeeSystem\model\ShiftAssignmentRequestDTO.class
@@ -69,10 +70,12 @@ employeeAttendanceSystem\com\employeeSystem\service\DepartmentService.class
 employeeAttendanceSystem\com\employeeSystem\model\LeaveTypeRequest.class
 employeeAttendanceSystem\com\employeeSystem\service\impl\EmployeeServiceImpl.class
 employeeAttendanceSystem\com\employeeSystem\model\AttendanceRequestDTO.class
+employeeAttendanceSystem\com\employeeSystem\service\SecurityContextService.class
 employeeAttendanceSystem\com\employeeSystem\model\AttendanceResponseDTO.class
 employeeAttendanceSystem\com\employeeSystem\model\ShiftRequestDTO.class
 employeeAttendanceSystem\com\employeeSystem\repository\entity\RoleType.class
 employeeAttendanceSystem\com\employeeSystem\service\impl\LeaveRecordServiceImpl.class
+employeeAttendanceSystem\com\employeeSystem\service\impl\AuthenticationServiceImpl.class
 employeeAttendanceSystem\com\employeeSystem\service\impl\UserLoginServiceImpl.class
 employeeAttendanceSystem\com\employeeSystem\repository\impl\LeaveRecordRepositoryimpl.class
 employeeAttendanceSystem\com\employeeSystem\service\ShiftService.class

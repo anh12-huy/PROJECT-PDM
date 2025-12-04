@@ -57,8 +57,9 @@ public class AttendanceRepositoryimpl implements AttendanceRepository {
             ps.setInt(1, attendance.getEmployeeID());
             ps.setDate(2, attendance.getWorkDate());
 
-            if (attendance.getShiftID() != 0) {
-                ps.setInt(3, attendance.getShiftID());
+            Integer shiftId = attendance.getShiftID();
+            if (shiftId != null && shiftId != 0) {
+                ps.setInt(3, shiftId);
             } else {
                 ps.setNull(3, Types.INTEGER);
             }
@@ -273,8 +274,3 @@ public class AttendanceRepositoryimpl implements AttendanceRepository {
         return a;
     }
 }
-
-
-
-
- 

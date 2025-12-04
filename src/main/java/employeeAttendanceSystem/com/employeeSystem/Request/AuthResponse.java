@@ -1,5 +1,6 @@
 package employeeAttendanceSystem.com.employeeSystem.Request;
 
+import employeeAttendanceSystem.com.employeeSystem.repository.entity.RoleType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,6 +10,13 @@ import lombok.Setter;
 public class AuthResponse {
     private int userId;
     private String token;
+    private String role;
+
+    public AuthResponse(int userId, String token, String role) {
+        this.userId = userId;
+        this.token = token;
+        this.role = role;
+    }
 
     public AuthResponse(int userId, String token) {
         this.userId = userId;
@@ -29,5 +37,13 @@ public class AuthResponse {
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 }

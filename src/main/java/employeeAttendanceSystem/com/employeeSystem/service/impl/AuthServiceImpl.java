@@ -5,7 +5,7 @@ import employeeAttendanceSystem.com.employeeSystem.repository.impl.UserLoginRepo
 import employeeAttendanceSystem.com.employeeSystem.service.AuthService;
 import employeeAttendanceSystem.com.employeeSystem.repository.entity.UserLoginEntity;
 import employeeAttendanceSystem.com.employeeSystem.repository.entity.RoleType;
-import employeeAttendanceSystem.com.employeeSystem.Request.LoginRequest; 
+import employeeAttendanceSystem.com.employeeSystem.Request.LoginRequest;
 import employeeAttendanceSystem.com.employeeSystem.Request.RegisterRequest;
 import employeeAttendanceSystem.com.employeeSystem.Request.AuthResponse;
 import employeeAttendanceSystem.com.employeeSystem.Security.JwtTokenProvider;
@@ -24,15 +24,15 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final TokenBlacklist tokenBlacklist;
-    
 
-    public AuthServiceImpl(UserLoginRepository userLoginRepository, 
-                        PasswordEncoder passwordEncoder, 
-                        JwtTokenProvider jwtTokenProvider, 
+
+    public AuthServiceImpl(UserLoginRepository userLoginRepository,
+                        PasswordEncoder passwordEncoder,
+                        JwtTokenProvider jwtTokenProvider,
                         TokenBlacklist tokenBlacklist) {
-        
+
         this.userLoginRepository = userLoginRepository;
-        this.passwordEncoder = passwordEncoder;         
+        this.passwordEncoder = passwordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
         this.tokenBlacklist = tokenBlacklist;
     }
@@ -65,7 +65,7 @@ public class AuthServiceImpl implements AuthService {
         userLoginRepository.updateUser(user.getUserID(), user);
 
         String token = jwtTokenProvider.generateToken(user.getUserID());
-        return new AuthResponse(user.getUserID(), token);
+        return new AuthResponse(user.getUserID(), token, user.getRole().toString());
     }
     
     @Override
@@ -74,22 +74,21 @@ public class AuthServiceImpl implements AuthService {
         if (existingUser.isPresent()) {
             throw new RuntimeException("Username already exists");
         }
-        
+
         UserLoginEntity newUser = new UserLoginEntity();
         newUser.setUsername(request.getUsername());
-        newUser.setPasswordHash(passwordEncoder.encode(request.getPassword()));
-        newUser.setRole(RoleType.EMPLOYEE); 
+        newUser.setPasswordHash(request.getPassword()); // plaintext
+        newUser.setRole(RoleType.EMPLOYEE);
         newUser.setLastLogin(new Timestamp(System.currentTimeMillis()));
 
-        
         boolean success = userLoginRepository.createUser(newUser);
         if (!success) throw new RuntimeException("Failed to create user");
-        
+
         Optional<UserLoginEntity> createdUser = userLoginRepository.getUserByUsername(request.getUsername());
         if (createdUser.isEmpty()) throw new RuntimeException("Failed to retrieve created user");
-        
+
         String token = jwtTokenProvider.generateToken(createdUser.get().getUserID());
-        return new AuthResponse(createdUser.get().getUserID(), token);
+        return new AuthResponse(createdUser.get().getUserID(), token, createdUser.get().getRole().toString());
     }
 
     @Override

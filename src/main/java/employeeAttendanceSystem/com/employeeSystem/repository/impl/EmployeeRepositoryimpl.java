@@ -95,9 +95,9 @@ public boolean createEmployeeRecord(EmployeeEntity employee) {
     String sql = "INSERT INTO employee " +
             "(Name, Ssn, Address, Email, Salary, Sex, Birthday, DepartmentID, UserID, created_at) " +
             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-    
+
     try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASSWORD);
-         PreparedStatement pstmt = conn.prepareStatement(sql)) {
+         PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
         pstmt.setString(1, employee.getName());
         pstmt.setString(2, employee.getSsn());
@@ -128,6 +128,13 @@ public boolean createEmployeeRecord(EmployeeEntity employee) {
         pstmt.setTimestamp(10, createdAt);
 
         int rows = pstmt.executeUpdate();
+        if (rows > 0) {
+            try (ResultSet rs = pstmt.getGeneratedKeys()) {
+                if (rs.next()) {
+                    employee.setEmployeeID(rs.getInt(1));
+                }
+            }
+        }
         return rows > 0;
 
     } catch (SQLException e) {

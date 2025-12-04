@@ -15,6 +15,6 @@ public interface LeaveRecordRepository {
 	boolean deleteLeaveRecord(int id);
     boolean approveLeaveRecord(int id);
     boolean denyLeaveRecord(int id);
-    Optional<LeaveRecordEntity> getLeaveRecordOfEmployee(int emplId);
+    List<LeaveRecordEntity> getLeaveRecordsOfEmployee(int emplId);
     List<LeaveRecordEntity> getAllPendingLeaveRecord();
 }

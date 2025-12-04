@@ -186,8 +186,9 @@ public class LeaveRecordRepositoryimpl implements LeaveRecordRepository {
     }
 
     @Override
-    public Optional<LeaveRecordEntity> getLeaveRecordOfEmployee(int emplId) {
-        String sql = "SELECT * FROM LeaveRecord WHERE EmployeeID = ? ORDER BY created_at DESC LIMIT 1";
+    public List<LeaveRecordEntity> getLeaveRecordsOfEmployee(int emplId) {
+        String sql = "SELECT * FROM LeaveRecord WHERE EmployeeID = ? ORDER BY created_at DESC";
+        List<LeaveRecordEntity> list = new ArrayList<>();
 
         try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASSWORD);
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -195,9 +196,8 @@ public class LeaveRecordRepositoryimpl implements LeaveRecordRepository {
             stmt.setInt(1, emplId);
 
             try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    LeaveRecordEntity entity = mapEntity(rs);
-                    return Optional.of(entity);
+                while (rs.next()) {
+                    list.add(mapEntity(rs));
                 }
             }
 
@@ -205,7 +205,7 @@ public class LeaveRecordRepositoryimpl implements LeaveRecordRepository {
             e.printStackTrace();
         }
 
-        return Optional.empty();
+        return list;
     }
 
 

@@ -6,13 +6,15 @@ import employeeAttendanceSystem.com.employeeSystem.model.AttendanceRequestDTO;
 import employeeAttendanceSystem.com.employeeSystem.Security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
-@CrossOrigin(origins = "http://localhost:8081")
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/attendance")
 @RequiredArgsConstructor
@@ -22,6 +24,7 @@ public class AttendanceController {
     private final JwtTokenProvider jwtTokenProvider;
 
     @PostMapping("/checkin")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER') or hasRole('EMPLOYEE')")
     public ResponseEntity<?> checkin(HttpServletRequest request,
                                     @RequestParam int shiftId) {
 
@@ -29,32 +32,35 @@ public class AttendanceController {
 
         boolean success = attendanceService.checkIn(userId, shiftId);
 
-        return ResponseEntity.ok(success ? "Check-in successful" : "Check-in failed");
+        return ResponseEntity.ok(Map.of("success", success, "message", success ? "Check-in successful" : "Check-in failed"));
     }
 
     @PostMapping("/checkout")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER') or hasRole('EMPLOYEE')")
     public ResponseEntity<?> checkout(HttpServletRequest request) {
         int userId = getUserIdFromToken(request);
         boolean success = attendanceService.checkOut(userId);
-        return ResponseEntity.ok(success ? "Check-out successful" : "Check-out failed");
+        return ResponseEntity.ok(Map.of("success", success, "message", success ? "Check-out successful" : "Check-out failed"));
     }
 
     @PostMapping("/mark")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
     public ResponseEntity<?> mark(@RequestBody AttendanceRequestDTO request,
-                                   @RequestParam int employeeId,
                                    HttpServletRequest httpRequest) {
         int markerId = getUserIdFromToken(httpRequest);
-        boolean success = attendanceService.markManualAttendance(request, employeeId, markerId);
-        return ResponseEntity.ok(success ? "Attendance marked successfully" : "Failed to mark attendance");
+        boolean success = attendanceService.markManualAttendance(request, request.getEmployeeId(), markerId);
+        return ResponseEntity.ok(Map.of("success", success, "message", success ? "Attendance marked successfully" : "Failed to mark attendance"));
     }
 
     @PostMapping("/auto-absent")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
     public ResponseEntity<Void> autoMarkAbsent() {
         attendanceService.autoMarkAbsentForDate(LocalDate.now());
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/my-history")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER') or hasRole('EMPLOYEE')")
     public ResponseEntity<List<AttendanceResponseDTO>> myHistory(HttpServletRequest request) {
         int userId = getUserIdFromToken(request);
         List<AttendanceResponseDTO> response = attendanceService.getMyAttendanceHistory(userId);
@@ -62,6 +68,7 @@ public class AttendanceController {
     }
 
     @GetMapping("/by-date")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
     public ResponseEntity<List<AttendanceResponseDTO>> getByDate(@RequestParam String date) {
         List<AttendanceResponseDTO> response = attendanceService.getAttendanceByDate(LocalDate.parse(date));
         return ResponseEntity.ok(response);

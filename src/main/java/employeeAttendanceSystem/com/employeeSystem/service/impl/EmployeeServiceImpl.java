@@ -1,11 +1,15 @@
 package employeeAttendanceSystem.com.employeeSystem.service.impl;
 
-import employeeAttendanceSystem.com.employeeSystem.repository.EmployeeRepository;  
-import employeeAttendanceSystem.com.employeeSystem.repository.impl.EmployeeRepositoryimpl;  
-import employeeAttendanceSystem.com.employeeSystem.service.EmployeeService;  
+import employeeAttendanceSystem.com.employeeSystem.repository.EmployeeRepository;
+import employeeAttendanceSystem.com.employeeSystem.repository.impl.EmployeeRepositoryimpl;
+import employeeAttendanceSystem.com.employeeSystem.repository.UserLoginRepository;
+import employeeAttendanceSystem.com.employeeSystem.repository.impl.UserLoginRepositoryimpl;
+import employeeAttendanceSystem.com.employeeSystem.service.EmployeeService;
 import employeeAttendanceSystem.com.employeeSystem.repository.entity.AttendanceEntity;
 import employeeAttendanceSystem.com.employeeSystem.repository.entity.EmployeeEntity;
 import employeeAttendanceSystem.com.employeeSystem.repository.entity.LeaveRecordEntity;
+import employeeAttendanceSystem.com.employeeSystem.repository.entity.UserLoginEntity;
+import employeeAttendanceSystem.com.employeeSystem.repository.entity.RoleType;
 import employeeAttendanceSystem.com.employeeSystem.model.EmployeeResponseDTO; 
 import employeeAttendanceSystem.com.employeeSystem.model.EmployeeRequestDTO; 
 import employeeAttendanceSystem.com.employeeSystem.model.AttendanceResponseDTO;
@@ -24,26 +28,33 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public class EmployeeServiceImpl implements EmployeeService {
  
     private final EmployeeRepository employeeRepository;
-    private final PasswordEncoder passwordEncoder; 
-    
+    private final UserLoginRepository userLoginRepository;
+    private final PasswordEncoder passwordEncoder;
+
     public EmployeeServiceImpl() {
-        this.employeeRepository = new EmployeeRepositoryimpl(); 
-        this.passwordEncoder = new BCryptPasswordEncoder(); 
+        this.employeeRepository = new EmployeeRepositoryimpl();
+        this.userLoginRepository = new UserLoginRepositoryimpl();
+        this.passwordEncoder = new BCryptPasswordEncoder();
     }
  
     private EmployeeResponseDTO mapEntityToResponseDTO(EmployeeEntity entity) {
         if (entity == null) return null;
         EmployeeResponseDTO dto = new EmployeeResponseDTO();
         dto.setEmployeeId(entity.getEmployeeID());
-        dto.setFirstName(entity.getName());  
+        dto.setFirstName(entity.getName());
         dto.setEmail(entity.getEmail());
-        
+
         if (entity.getBirthday() != null) {
             dto.setDateOfBirth(entity.getBirthday().toLocalDate());
         }
-        dto.setDepartmentId(entity.getDepartmentID()); 
+        dto.setDepartmentId(entity.getDepartmentID());
          if (entity.getCreated_at() != null) {
             dto.setHiredDate(entity.getCreated_at().toLocalDateTime());
+        }
+        // Get role from user login
+        Optional<UserLoginEntity> userOptional = userLoginRepository.getUserById(entity.getEmployeeID());
+        if (userOptional.isPresent()) {
+            dto.setRole(userOptional.get().getRole().name());
         }
         return dto;
     }

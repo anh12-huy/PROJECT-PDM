@@ -165,13 +165,12 @@ public class LeaveRecordServiceImpl implements LeaveRecordService {
     
     @Override
     public List<LeaveRecordResponseDTO> getLeaveRecordsByEmployee(int employeeId) {
-        Optional<LeaveRecordEntity> singleRecordOptional = leaveRecordRepository.getLeaveRecordOfEmployee(employeeId);
-        
-        if (singleRecordOptional.isPresent()) {
-            LeaveRecordEntity singleRecord = singleRecordOptional.get();
-            return Collections.singletonList(mapEntityToDTO(singleRecord)); 
+        List<LeaveRecordEntity> entities = leaveRecordRepository.getLeaveRecordsOfEmployee(employeeId);
+        List<LeaveRecordResponseDTO> dtos = new ArrayList<>();
+        for (LeaveRecordEntity entity : entities) {
+            dtos.add(mapEntityToDTO(entity));
         }
-        return Collections.emptyList();
+        return dtos;
     }
  
     @Override

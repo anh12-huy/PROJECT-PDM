@@ -24,8 +24,9 @@ public class EmployeeResponseDTO implements Serializable {
     private String departmentName; 
  
     private int totalLeaveDaysUsed;  
-    private int totalShiftHours; 
- 
+    private int totalShiftHours;
+    private String role;
+
     public EmployeeResponseDTO() {}
  
     public int getEmployeeId() { return employeeId; }
@@ -63,5 +64,7 @@ public class EmployeeResponseDTO implements Serializable {
  
     public int getTotalShiftHours() { return totalShiftHours; }
     public void setTotalShiftHours(int totalShiftHours) { this.totalShiftHours = totalShiftHours; }
-}
 
+    public String getRole() { return role; }
+    public void setRole(String role) { this.role = role; }
+}
