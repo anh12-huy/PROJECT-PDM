@@ -8,8 +8,9 @@
     <link rel="stylesheet" href="css/styles.css">
     <script src="js/api.js"></script>
     <script type="module">
-        import { checkLogin } from "./js/App.js";
-        checkLogin();
+        import { checkLogin, checkRole, getUser } from "./js/App.js";
+        // checkLogin(); // Temporarily disabled for testing
+        // checkRole(['ADMIN', 'MANAGER', 'EMPLOYEE']); // Temporarily disabled for testing
     </script>
 </head>
 
@@ -40,7 +41,7 @@
             <!-- TOPBAR -->
             <div class="topbar">
                 <div class="topbar-title">
-                    <h1>Employees</h1>
+                    <h1 id="pageTitle">Employees</h1>
                 </div>
                 <div class="user-info">
                     <div class="user-avatar" id="userAvatar">A</div>
@@ -136,6 +137,14 @@
 
     <script type="module">
         import { apiGet, apiPost, apiPut, apiDelete } from "./js/api.js";
+        import { getUser } from "./js/App.js";
+
+            const user = getUser();
+            if (user.role === 'EMPLOYEE') {
+                document.getElementById('addEmployeeBtn').style.display = 'none';
+                document.getElementById('pageTitle').innerText = 'My Profile';
+                document.querySelector('th:last-child').style.display = 'none';
+            }
 
             let currentEditId = null; // null = create, not null = edit
 
@@ -157,29 +166,34 @@
 
             // Load danh sách employees
             async function loadEmployees() {
+                const tbody = document.getElementById("employeeTableBody");
                 try {
-                    const employees = await apiGet("/employees");
-                    const tbody = document.getElementById("employeeTableBody");
-                    if (Array.isArray(employees) && employees.length > 0) {
-                        tbody.innerHTML = employees.map(emp => `
-                            <tr>
-                                <td>${emp.employeeId}</td>
-                                <td>${emp.firstName} ${emp.lastName || ''}</td>
-                                <td>${emp.email}</td>
-                                <td>${emp.departmentId}</td>
-                                <td>${emp.hiredDate ? new Date(emp.hiredDate).toLocaleDateString() : ''}</td>
-                                <td><span class="badge badge-success">${emp.status || 'Active'}</span></td>
-                                <td>
-                                    <button class="btn btn-sm btn-primary" onclick="editEmployee(${emp.employeeId})">Edit</button>
-                                    <button class="btn btn-sm btn-danger" onclick="deleteEmployee(${emp.employeeId})">Delete</button>
-                                </td>
-                            </tr>
-                        `).join('');
+                    const url = user.role === 'EMPLOYEE' ? `/employees/${user.userId}` : '/employees';
+                    let employeesData = await apiGet(url);
+                    let employees = Array.isArray(employeesData) ? employeesData : [employeesData];
+                    if (employees.length > 0) {
+                        tbody.innerHTML = employees.map(emp => {
+                            const actions = user.role === 'EMPLOYEE' ? '' : `<button class="btn btn-sm btn-primary" onclick="editEmployee(${emp.employeeId})">Edit</button><button class="btn btn-sm btn-danger" onclick="deleteEmployee(${emp.employeeId})">Delete</button>`;
+                            return `
+                                <tr>
+                                    <td>${emp.employeeId}</td>
+                                    <td>${emp.firstName} ${emp.lastName || ''}</td>
+                                    <td>${emp.email}</td>
+                                    <td>${emp.departmentId}</td>
+                                    <td>${emp.hiredDate ? new Date(emp.hiredDate).toLocaleDateString() : ''}</td>
+                                    <td><span class="badge badge-success">${emp.status || 'Active'}</span></td>
+                                    <td${user.role === 'EMPLOYEE' ? ' style="display:none;"' : ''}>${actions}</td>
+                                </tr>
+                            `;
+                        }).join('');
                     } else {
-                        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;">No employees found</td></tr>`;
+                        const colspan = user.role === 'EMPLOYEE' ? 6 : 7;
+                        tbody.innerHTML = `<tr><td colspan="${colspan}" style="text-align:center;">No employees found</td></tr>`;
                     }
                 } catch (err) {
                     console.error("Error loading employees:", err);
+                    const colspan = user.role === 'EMPLOYEE' ? 6 : 7;
+                    tbody.innerHTML = `<tr><td colspan="${colspan}" style="text-align:center; color: #ef4444;">Error loading employees</td></tr>`;
                 }
             }
 
@@ -218,7 +232,13 @@
         dateOfBirth: document.getElementById("dateOfBirth").value
     };
     try{
-    if (!empData.firstName || !empData.lastName || !empData.email || !empData.departmentId || !empData.dateOfBirth) {
+    if (
+        !empData.firstName ||
+        !empData.lastName ||
+        !empData.email ||
+        depValue === "" ||
+        !empData.dateOfBirth
+    ) {
         alert("Please fill all required fields!");
         return;
     }
@@ -289,7 +309,7 @@
             }
             
             try {
-                const user = await apiGet(`/userlogin/${userId}`);
+                const user = await apiGet(`/users/${userId}`);
                 document.getElementById("userName").textContent = user.username ||   user.firstName || "Unknown";
                 document.getElementById("userRole").textContent = user.role || "-";
             } catch (error) {

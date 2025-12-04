@@ -6,10 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shifts - Employee Attendance System</title>
     <link rel="stylesheet" href="css/styles.css">
-    <script src="js/api.js"></script>
     <script type="module">
-        import { checkLogin } from "./js/App.js";
+        import { checkLogin, checkRole, getUser } from "./js/App.js";
         checkLogin();
+        checkRole(['ADMIN', 'MANAGER', 'EMPLOYEE']);
     </script>
 </head>
 
@@ -99,15 +99,30 @@
     </div>
     <script type="module">
     import { apiGet, apiPost, apiDelete } from "./js/api.js";
+    import { getUser } from "./js/App.js";
 
-    document.getElementById('logoutBtn').onclick = () => { 
-        localStorage.clear(); 
-        location.href = 'UserLogin.html'; 
+    const user = getUser();
+    document.querySelector('.user-name').innerText = user.username;
+    document.querySelector('.user-role').innerText = user.role;
+    document.querySelector('.user-avatar').innerText = user.username.charAt(0).toUpperCase();
+
+    const shiftCard = document.querySelector('.card.mb-10');
+    if (user.role === 'EMPLOYEE') {
+        shiftCard.style.display = 'none';
+    }
+
+    document.getElementById('logoutBtn').onclick = () => {
+        localStorage.clear();
+        location.href = 'UserLogin.html';
     };
 
     // Thêm Shift
     document.getElementById('shiftForm').onsubmit = async (e) => {
         e.preventDefault();
+        if (user.role === 'EMPLOYEE') {
+            alert('You do not have permission to create shift!');
+            return;
+        }
         try {
             const shiftData = {
                 shiftName: document.getElementById('shiftName').value,
@@ -128,24 +143,29 @@
             try {
                 const shifts = await apiGet('/shifts');
                 if (Array.isArray(shifts)) {
-                    document.getElementById('shiftList').innerHTML = shifts.map(s => `
+                    document.getElementById('shiftList').innerHTML = shifts.map(s => {
+                        const actions = user.role !== 'EMPLOYEE' ? `<button class="btn btn-sm btn-danger" onclick="deleteShift('${s.shiftId}')">Delete</button>` : '';
+                        return `
                         <tr>
                             <td>${s.shiftId}</td>
                             <td>${s.shiftName}</td>
                             <td>${s.startTime}</td>
                             <td>${s.endTime}</td>
-                            <td>
-                                <button class="btn btn-sm btn-danger" onclick="deleteShift('${s.shiftId}')">Delete</button>
-                            </td>
+                            <td>${actions}</td>
                         </tr>
-                    `).join('');
+                    `;
+                    }).join('');
                 }
-            } catch (e) { 
-                console.error(e); 
+            } catch (e) {
+                console.error(e);
             }
         }
 
         window.deleteShift = async (id) => {
+            if (user.role === 'EMPLOYEE') {
+                alert('You do not have permission to delete shift!');
+                return;
+            }
             if (!confirm(`Are you sure you want to delete shift ${id}?`)) return;
             try {
                 await apiDelete(`/shifts/${id}`);

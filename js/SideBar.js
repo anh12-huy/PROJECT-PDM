@@ -21,12 +21,8 @@ function applyRoleMenu() {
     const user = getUser();
     if (!user) return;
 
-    if (user.role === "User") {
-        document.querySelector("[data-menu='employees']").style.display = "none";
-        document.querySelector("[data-menu='department']").style.display = "none";
-        document.querySelector("[data-menu='shifts']").style.display = "none";
-        document.querySelector("[data-menu='holiday']").style.display = "none";
-    }
+        // EMPLOYEE can only see dashboard, attendance, employees (own), holidays, shifts, departments, leave records
+        // MANAGER and ADMIN can see all
 }
 
 // logout btn

@@ -26,7 +26,7 @@ export async function apiLogin(url, data) {
 export async function apiGet(url) {
     const token = localStorage.getItem("token");
     if (!token) {
-        window.location.href = "UserLogin.html";
+        // window.location.href = "UserLogin.html"; // Temporarily disabled for testing
         throw new Error("No token found - please login");
     }
 
@@ -58,7 +58,7 @@ export async function apiGet(url) {
 export async function apiPost(url, data) {
     const token = localStorage.getItem("token");
     if (!token) {
-        window.location.href = "UserLogin.html";
+        // window.location.href = "UserLogin.html"; // Temporarily disabled for testing
         throw new Error("No token found - please login");
     }
 
@@ -92,7 +92,7 @@ export async function apiPost(url, data) {
 export async function apiPut(url, data) {
     const token = localStorage.getItem("token");
     if (!token) {
-        window.location.href = "UserLogin.html";
+        // window.location.href = "UserLogin.html"; // Temporarily disabled for testing
         throw new Error("No token found - please login");
     }
 
@@ -126,7 +126,7 @@ export async function apiPut(url, data) {
 export async function apiDelete(url) {
     const token = localStorage.getItem("token");
     if (!token) {
-        window.location.href = "UserLogin.html";
+        // window.location.href = "UserLogin.html"; // Temporarily disabled for testing
         throw new Error("No token found - please login");
     }
 

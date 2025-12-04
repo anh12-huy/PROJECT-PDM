@@ -121,7 +121,7 @@
                     messageDiv.innerHTML = '<div class="alert alert-success">✓ Login successful! Redirecting...</div>';
                     localStorage.setItem("token", res.token);
                     localStorage.setItem("userId", res.userId);
-                    const user = res.user || { userId: res.userId, username: username };
+                    const user = res.user || { userId: res.userId, username: username, role: res.role };
                     localStorage.setItem("user", JSON.stringify(user));
                     setTimeout(() => {
                         window.location.href = "Dashboard.html";
@@ -150,7 +150,7 @@
                     messageDiv.innerHTML = '<div class="alert alert-success">✓ Registration successful! Logging you in...</div>';
                     localStorage.setItem("token", res.token);
                     localStorage.setItem("userId", res.userId);
-                    const user = res.user || { userId: res.userId, username: username };
+                    const user = res.user || { userId: res.userId, username: username, role: res.role };
                     localStorage.setItem("user", JSON.stringify(user));
                     setTimeout(() => {
                         window.location.href = "Dashboard.html";

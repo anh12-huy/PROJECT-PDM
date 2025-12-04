@@ -6,10 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Holiday - Employee Attendance System</title>
     <link rel="stylesheet" href="css/styles.css">
-    <script src="js/api.js"></script>
     <script type="module">
-        import { checkLogin } from "./js/App.js";
+        import { checkLogin, checkRole } from "./js/App.js";
         checkLogin();
+        checkRole(['ADMIN', 'MANAGER', 'EMPLOYEE']);
     </script>
 </head>
 
@@ -52,21 +52,17 @@
                 </div>
                 <div class="card-body">
                     <form id="holidayForm" class="form-row">
-                        <div class="form-group">
-                            <label>Holiday Name</label>
-                            <input type="text" id="holidayName" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Holiday Date</label>
-                            <input type="date" id="holidayDate" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Description</label>
-                            <textarea id="description" style="max-width: 100%;"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <button type="submit" class="btn btn-primary btn-block">Add Holiday</button>
-                        </div>
+                <div class="form-group">
+                    <label>Holiday Name</label>
+                    <input type="text" id="holidayName" required>
+                </div>
+                <div class="form-group">
+                    <label>Holiday Date</label>
+                    <input type="date" id="holidayDate" required>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary btn-block">Add Holiday</button>
+                </div>
                     </form>
                 </div>
             </div>
@@ -82,13 +78,12 @@
                                     <th>ID</th>
                                     <th>Holiday Name</th>
                                     <th>Date</th>
-                                    <th>Description</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="holidayList">
                                 <tr>
-                                    <td colspan="5" style="text-align: center;">Loading...</td>
+                                    <td colspan="4" style="text-align: center;">Loading...</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -98,17 +93,67 @@
         </main>
     </div>
     <script type="module">
-        import { apiGet } from "./js/api.js";
+        import { apiGet, apiPost, apiDelete } from "./js/api.js";
+        import { getUser } from "./js/App.js";
         document.getElementById('logoutBtn').onclick = () => { localStorage.clear(); location.href = 'UserLogin.html'; };
-        document.getElementById('holidayForm').onsubmit = async (e) => { e.preventDefault(); alert('Save to be implemented'); };
+        const user = getUser();
+        document.querySelector('.user-name').innerText = user.username;
+        document.querySelector('.user-role').innerText = user.role;
+        document.querySelector('.user-avatar').innerText = user.username.charAt(0).toUpperCase();
+
+        const holidayCard = document.querySelector('.card.mb-10');
+        if (user.role === 'EMPLOYEE') {
+            holidayCard.style.display = 'none';
+        }
+
+        document.getElementById('holidayForm').onsubmit = async (e) => {
+            e.preventDefault();
+            if (user.role === 'EMPLOYEE') {
+                alert('You do not have permission to create holiday!');
+                window.location.href = 'Dashboard.html';
+                return;
+            }
+            try {
+                const holidayData = {
+                    holidayName: document.getElementById('holidayName').value,
+                    holidayDate: document.getElementById('holidayDate').value
+                };
+                await apiPost('/holidays', holidayData);
+                alert("Holiday added successfully!");
+                document.getElementById('holidayForm').reset();
+                load();
+            } catch (err) {
+                alert("You do not have permission to create holiday. Redirecting to dashboard...");
+                window.location.href = 'Dashboard.html';
+            }
+        };
         async function load() {
             try {
-                const holidays = await apiGet('/holiday');
+                const holidays = await apiGet('/holidays');
                 if (Array.isArray(holidays)) {
-                    document.getElementById('holidayList').innerHTML = holidays.map(h => `<tr><td>${h.holidayID}</td><td>${h.holidayName}</td><td>${h.holidayDate}</td><td>${h.description || '-'}</td><td><button class="btn btn-sm btn-danger" onclick="alert('Delete to be implemented')">Delete</button></td></tr>`).join('');
+                    document.getElementById('holidayList').innerHTML = holidays.map(h => {
+                        const actions = user.role !== 'EMPLOYEE' ? `<button class="btn btn-sm btn-danger" onclick="deleteHoliday(${h.holidayId})">Delete</button>` : '';
+                        return `<tr><td>${h.holidayId}</td><td>${h.holidayName}</td><td>${h.holidayDate}</td><td>${actions}</td></tr>`;
+                    }).join('');
+                } else {
+                    document.getElementById('holidayList').innerHTML = '<tr><td colspan="4" style="text-align: center; color: #9ca3af;">No holidays found</td></tr>';
                 }
             } catch (e) { console.error(e); }
         }
+        window.deleteHoliday = async (id) => {
+            if (user.role === 'EMPLOYEE') {
+                alert('You do not have permission to delete holiday!');
+                return;
+            }
+            if (!confirm("Are you sure you want to delete this holiday?")) return;
+            try {
+                await apiDelete(`/holidays/${id}`);
+                alert("Holiday deleted successfully!");
+                load();
+            } catch (err) {
+                alert("Error deleting holiday: " + err.message);
+            }
+        };
         load();
     </script>
 </body>

@@ -12,13 +12,31 @@ export function checkLogin() {
 }
 
 // Check Role: Admin / User
-export function checkRole(requiredRole) {
+export function checkRole(requiredRoles) {
     const user = getUser();
     if (!user) return window.location.href = "UserLogin.html";
 
-    if (requiredRole && user.role !== requiredRole) {
-        alert("You do not have access!");
-        window.location.href = "Dashboard.html";
+    const allowedRoles = Array.isArray(requiredRoles) ? requiredRoles : [requiredRoles];
+    if (requiredRoles && !allowedRoles.includes(user.role)) {
+        alert("You do not have access to this page!");
+        if (user.role === "EMPLOYEE") {
+            window.location.href = "Attendance.html";
+        } else {
+            window.location.href = "Dashboard.html";
+        }
+    }
+}
+
+// Update user info in topbar
+export function updateUserInfo() {
+    const user = getUser();
+    if (user) {
+        const nameEl = document.getElementById("userName");
+        const roleEl = document.getElementById("userRole");
+        const avatarEl = document.getElementById("userAvatar");
+        if (nameEl) nameEl.innerText = user.username;
+        if (roleEl) roleEl.innerText = user.role;
+        if (avatarEl) avatarEl.innerText = user.username.charAt(0).toUpperCase();
     }
 }
 
@@ -39,7 +57,7 @@ export async function login(username, password) {
         localStorage.setItem("token", res.token);
         localStorage.setItem("userId", res.userId);
         // Create a basic user object if not provided by backend
-        const user = res.user || { userId: res.userId, username: username };
+        const user = res.user || { userId: res.userId, username: username, role: res.role };
         localStorage.setItem("user", JSON.stringify(user));
 
         window.location.href = "Dashboard.html";
