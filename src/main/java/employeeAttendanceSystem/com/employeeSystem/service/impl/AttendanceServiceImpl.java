@@ -44,8 +44,10 @@ public class AttendanceServiceImpl implements AttendanceService {
         
        
         if (entity.getStatus() != null) {
-             dto.setMethod(entity.getStatus().name()); 
+             dto.setMethod(entity.getStatus().name());
+             dto.setStatus(entity.getStatus());
         }
+        dto.setHolidayID(entity.getHolidayID());
         
         return dto;
     }

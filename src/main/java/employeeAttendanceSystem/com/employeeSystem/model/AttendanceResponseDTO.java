@@ -11,16 +11,20 @@ import java.time.LocalDateTime;
 
 public class AttendanceResponseDTO  {
  
-    private int attendanceId; 
- 
-    private int employeeId; 
- 
+    private int attendanceId;
+
+    private int employeeId;
+
     private LocalDateTime checkInTime;
- 
-    private LocalDateTime checkOutTime; 
- 
-    private String method; 
- 
+
+    private LocalDateTime checkOutTime;
+
+    private String method;
+
+    private AttendanceStatus status;
+
+    private Integer holidayId;
+
     public AttendanceResponseDTO() {}
  
     public int getAttendanceId() { return attendanceId; }
@@ -37,4 +41,10 @@ public class AttendanceResponseDTO  {
 
     public String getMethod() { return method; }
     public void setMethod(String method) { this.method = method; }
+
+    public AttendanceStatus getStatus() { return status; }
+    public void setStatus(AttendanceStatus status) { this.status = status; }
+
+    public Integer getHolidayID() { return holidayId; }
+    public void setHolidayID(Integer holidayID) { this.holidayId = holidayId; }
 }
