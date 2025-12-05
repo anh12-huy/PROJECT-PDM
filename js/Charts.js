@@ -1,4 +1,4 @@
-import { apiGet } from ".js/Api.js";
+import { apiGet } from "./api.js";
 
 export async function loadDashboardCharts() {
 
