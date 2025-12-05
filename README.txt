@@ -15,11 +15,11 @@ leave requests.
 
 2. PREREQUISITES
 ------------------------------------------------------------------------
-1. Node.js (Required to run the frontend server script `server.js`).
+1. Node.js,Online Python 3 Compiler (Required to run the frontend server script `server.js`).
 2. Backend API Server: 
-   - Must be running on http://localhost:8080
+   - Must be running on http://localhost:8081
    - Must expose endpoints at /api/...
-3. A modern web browser (Chrome, Edge, Firefox) supporting ES Modules.
+3. A modern web browser (Chrome, Edge, Firefox,...) supporting ES Modules.
 
 3. DIRECTORY STRUCTURE
 ------------------------------------------------------------------------
@@ -63,22 +63,82 @@ links and scripts to work correctly:
 5. TEST CREDENTIALS (Default Database Data)
 ------------------------------------------------------------------------
 Use the following credentials to log in and test different roles:
-
-1. ADMIN
-   - UserID: 1
-   - Password: 123456
-   - Access: All pages, full CRUD operations.
-
-2. EMPLOYEE
-   - UserID: 2
-   - Password: 123456
-   - Access: Attendance (Self), Leave Requests, View Profile. 
-   - Restricted: Cannot delete data or manage other employees.
-
-3. MANAGER
-   - UserID: 3
-   - Password: 123456
-   - Access: Department management, Approvals.
+5.1. UserLogin
+-UserID: 1
+-Password: 123456
+-Role: Admin
+-Access: 
++All pages
++Full CRUD operations across the system
++Manage Employees, Departments, Shifts, Holidays
++Approve/Deny Leave Requests
++Mark attendance for all employees
+-Restricted: None
+5.2. Dashboard
+-UserID: 2 
+-Password: 123456
+-Role: Manager 
+-Access: 
++Dashboard overview for department
++Attendance (Self) 
++View Department Employee
+s +Leave Requests (Approve/Deny for own department)
++View my Profile
++Holidays
+-Restricted: Cannot delete data Cannot manage other employees Cannot edit Departments/Shifts/Holidays
+5.3. Employees
+-UserID: 1
+-Password: 123456
+-Role: Admin
+-Access:
++Add, Edit, Delete Employees
++Manage department assignment
+-Restricted: None
+5.4. Attendance
+-UserID: 3
+-Password: 123456
+-Role: Employee (Self Attendance)
+-Access:
++Check In / Check Out
++Select Shift (Day, Night, Morning, Evening)
++View personal attendance history
+-Restricted:
++Cannot edit or delete attendance
++Cannot mark attendance for others
+5.5. Department
+-UserID: 1
+-Password: 123456
+-Role: Admin
+-Access:
++Add/Edit/Delete Departments
+Restricted: None
+5.6. Shifts
+-UserID: 1
+-Password: 123456
+-Role: Admin
+-Access:
++Create Shift
++Configure Start Time / End Time
++Edit/Delete shifts
+-Restricted: None
+5.7. Holiday
+-UserID: 2
+-Password: 123456
+-Role: Manager
+-Access:
++View holiday requested list
+-Restricted:
++Cannot add/edit/delete holidays
+5.8. LeaveRecords
+-UserID: 3
+-Password: 123456
+-Role: Employee
++Access:
++Submit Leave Requests
++View approval status
+-Restricted:
++No approval permissions
++Cannot view requests from other employees
 
 6. FILE DESCRIPTIONS
 ------------------------------------------------------------------------
