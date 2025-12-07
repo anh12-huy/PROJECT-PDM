@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shifts - Employee Attendance System</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script type="module">
+        import { checkLogin, checkRole, getUser } from "./js/App.js";
+        checkLogin();
+        checkRole(['ADMIN', 'MANAGER', 'EMPLOYEE']);
+    </script>
+</head>
+
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>🏢 Attendance</h2>
+                <p>Management System</p>
+            </div>
+            <nav class="sidebar-nav">
+                <li><a href="Dashboard.html">📊 Dashboard</a></li>
+                <li><a href="Employees.html">👥 Employees</a></li>
+                <li><a href="Attendance.html">✓ Attendance</a></li>
+                <li><a href="Department.html">🏭 Department</a></li>
+                <li><a href="Shifts.html" class="active">⏰ Shifts</a></li>
+                <li><a href="Holiday.html">🎉 Holiday</a></li>
+                <li><a href="LeaveRecords.html">📋 Leave Records</a></li>
+            </nav>
+            <div class="sidebar-footer">
+                <button id="logoutBtn" class="btn btn-danger btn-block">Logout</button>
+            </div>
+        </aside>
+        <main class="main-content">
+            <div class="topbar">
+                <div class="topbar-title">
+                    <h1>Shift Management</h1>
+                </div>
+                <div class="user-info">
+                    <div class="user-avatar">A</div>
+                    <div class="user-details">
+                        <span class="user-name">Admin</span>
+                        <span class="user-role">Administrator</span>
+                    </div>
+                </div>
+            </div>
+            <div class="card mb-10">
+                <div class="card-header">
+                    <h3>⏰ Add Shift</h3>
+                </div>
+                <div class="card-body">
+                    <form id="shiftForm" class="form-row">
+                        <div class="form-group">
+                            <label>Shift Name</label>
+                            <input type="text" id="shiftName" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Start Time</label>
+                            <input type="time" id="startTime" step="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label>End Time</label>
+                            <input type="time" id="endTime" step="1" required>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary btn-block">Add Shift</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h3>📋 Shift List</h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ShiftID</th>
+                                    <th>Shift Name</th>
+                                    <th>Start Time</th>
+                                    <th>End Time</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="shiftList">
+                                <tr>
+                                    <td colspan="5" style="text-align: center;">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script type="module">
+    import { apiGet, apiPost, apiDelete } from "./js/api.js";
+    import { getUser } from "./js/App.js";
+
+    const user = getUser();
+    document.querySelector('.user-name').innerText = user.username;
+    document.querySelector('.user-role').innerText = user.role;
+    document.querySelector('.user-avatar').innerText = user.username.charAt(0).toUpperCase();
+
+    const shiftCard = document.querySelector('.card.mb-10');
+    if (user.role === 'EMPLOYEE') {
+        shiftCard.style.display = 'none';
+    }
+
+    document.getElementById('logoutBtn').onclick = () => {
+        localStorage.clear();
+        location.href = 'UserLogin.html';
+    };
+
+    // Thêm Shift
+    document.getElementById('shiftForm').onsubmit = async (e) => {
+        e.preventDefault();
+        if (user.role === 'EMPLOYEE') {
+            alert('You do not have permission to create shift!');
+            return;
+        }
+        try {
+            const shiftData = {
+                shiftName: document.getElementById('shiftName').value,
+                startTime: document.getElementById('startTime').value,
+                endTime: document.getElementById('endTime').value
+            };
+            await apiPost('/shifts', shiftData);
+            alert('Shift added successfully');
+            document.getElementById('shiftForm').reset();
+            load();
+        } catch (err) {
+            alert('Error adding shift: ' + err.message);
+        }
+    };
+
+    // Load danh sách shifts
+        async function load() {
+            try {
+                const shifts = await apiGet('/shifts');
+                if (Array.isArray(shifts)) {
+                    document.getElementById('shiftList').innerHTML = shifts.map(s => {
+                        const actions = user.role !== 'EMPLOYEE' ? `<button class="btn btn-sm btn-danger" onclick="deleteShift('${s.shiftId}')">Delete</button>` : '';
+                        return `
+                        <tr>
+                            <td>${s.shiftId}</td>
+                            <td>${s.shiftName}</td>
+                            <td>${s.startTime}</td>
+                            <td>${s.endTime}</td>
+                            <td>${actions}</td>
+                        </tr>
+                    `;
+                    }).join('');
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        window.deleteShift = async (id) => {
+            if (user.role === 'EMPLOYEE') {
+                alert('You do not have permission to delete shift!');
+                return;
+            }
+            if (!confirm(`Are you sure you want to delete shift ${id}?`)) return;
+            try {
+                await apiDelete(`/shifts/${id}`);
+                alert(`Shift ${id} deleted successfully`);
+                load();
+            } catch (err) {
+                alert('Error deleting shift: ' + err.message);
+            }
+        }
+
+        load();
+    </script>
+</body>
+
+</html>

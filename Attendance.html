@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance - Employee Attendance System</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script type="module">
+        import { checkLogin, checkRole } from "./js/App.js";
+        checkLogin();
+        checkRole(['ADMIN', 'MANAGER', 'EMPLOYEE']);
+    </script>
+</head>
+
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>🏢 Attendance</h2>
+                <p>Management System</p>
+            </div>
+            <nav class="sidebar-nav">
+                <li><a href="Dashboard.html">📊 Dashboard</a></li>
+                <li><a href="Employees.html">👥 Employees</a></li>
+                <li><a href="Attendance.html" class="active">✓ Attendance</a></li>
+                <li><a href="Department.html">🏭 Department</a></li>
+                <li><a href="Shifts.html">⏰ Shifts</a></li>
+                <li><a href="Holiday.html">🎉 Holiday</a></li>
+                <li><a href="LeaveRecords.html">📋 Leave Records</a></li>
+            </nav>
+            <div class="sidebar-footer">
+                <button id="logoutBtn" class="btn btn-danger btn-block">Logout</button>
+            </div>
+        </aside>
+        <main class="main-content">
+            <div class="topbar">
+                <div class="topbar-title">
+                    <h1>Attendance Records</h1>
+                </div>
+                <div class="user-info">
+                    <div class="user-avatar">A</div>
+                    <div class="user-details">
+                        <span class="user-name">Admin</span>
+                        <span class="user-role">Administrator</span>
+                    </div>
+                </div>
+            </div>
+            <div id="adminCard" class="card mb-10">
+                <div class="card-header">
+                    <h3>📋 Mark Attendance</h3>
+                </div>
+                <div class="card-body">
+                    <form id="attendanceForm" class="form-row">
+                        <div class="form-group">
+                            <label>Employee</label>
+                            <select id="empId" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Shift</label>
+                            <select id="shiftIdMark" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Check In Time</label>
+                            <input type="datetime-local" id="checkIn" required>
+                        </div>
+                        <div class="form-group">
+                            <label>&nbsp;</label>
+                            <button type="submit" class="btn btn-primary btn-block">Mark Attendance</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div id="employeeCard" class="card mb-10" style="display: none;">
+                <div class="card-header">
+                    <h3>📋 Self-Check In/Out</h3>
+                </div>
+                <div class="card-body">
+                    <form id="selfCheckForm" class="form-row">
+                        <div class="form-group">
+                            <label>Shift</label>
+                            <select id="shiftId" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label>&nbsp;</label>
+                            <button type="button" id="checkInBtn" class="btn btn-success" onclick="checkIn()">Check In</button>
+                            <button type="button" id="checkOutBtn" class="btn btn-warning" onclick="checkOut()">Check Out</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h3>📊 Attendance List</h3>
+                </div>
+                <div class="card-body">
+                    <div style="margin-bottom: 20px;">
+                        <label for="attendanceDate">Select Date:</label>
+                        <input type="date" id="attendanceDate" style="margin-left: 10px;">
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Employee</th>
+                                    <th>Date</th>
+                                    <th>Check In</th>
+                                    <th>Check Out</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="attendanceList">
+                                <tr>
+                                    <td colspan="5" style="text-align: center;">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script type="module">
+        import { apiGet, apiPost } from "./js/api.js";
+        import { getUser } from "./js/App.js";
+        let currentDate = new Date().toISOString().split('T')[0];
+
+        document.getElementById('logoutBtn').onclick = () => { localStorage.clear(); location.href = 'UserLogin.html'; };
+
+        document.getElementById('attendanceForm').onsubmit = async (e) => {
+            e.preventDefault();
+            try {
+                const empId = document.getElementById('empId').value;
+                const shiftId = document.getElementById('shiftIdMark').value;
+                const checkIn = document.getElementById('checkIn').value;
+                const data = {
+                    employeeId: empId,
+                    shiftId: shiftId,
+                    timestamp: new Date(checkIn).toISOString(),
+                    latitude: null,
+                    longitude: null
+                };
+                await apiPost('/attendance/mark', data);
+                alert("Attendance marked successfully!");
+                document.getElementById('attendanceForm').reset();
+                loadAttendance(currentDate);
+            } catch (err) {
+                alert("Error marking attendance: " + err.message);
+            }
+        };
+
+        async function loadEmployees() {
+            try {
+                const emps = await apiGet('/employees');
+                document.getElementById('empId').innerHTML = '<option>Select Employee</option>' + emps.map(e => `<option value="${e.employeeId}">${e.firstName}</option>`).join('');
+            } catch (e) { console.error(e); }
+        }
+
+        async function loadAttendance(date) {
+            try {
+                const attendance = await apiGet(`/attendance/by-date?date=${date}`);
+                // Fetch holidays for date mapping when checkInTime is null
+                const holidays = await apiGet('/holidays');
+                const holidayMap = {};
+                holidays.forEach(h => {
+                    holidayMap[h.holidayId] = h;
+                });
+                if (Array.isArray(attendance)) {
+                    document.getElementById('attendanceList').innerHTML = attendance.map(a => {
+                        let dateStr;
+                        if (a.checkInTime) {
+                            dateStr = new Date(a.checkInTime).toLocaleDateString();
+                        } else if (a.holidayId && holidayMap[a.holidayId]) {
+                            dateStr = new Date(holidayMap[a.holidayId].holidayDate).toLocaleDateString();
+                        } else {
+                            dateStr = '-';
+                        }
+                        const ciTime = a.checkInTime ? new Date(a.checkInTime).toLocaleTimeString() : '-';
+                        const coTime = a.checkOutTime ? new Date(a.checkOutTime).toLocaleTimeString() : '-';
+                        const status = a.checkOutTime ? '<span class="badge badge-success">Completed</span>' : '<span class="badge badge-warning">Checked In</span>';
+                        return `<tr><td>${a.employeeId}</td><td>${dateStr}</td><td>${ciTime}</td><td>${coTime}</td><td>${status}</td></tr>`;
+                    }).join('');
+                } else {
+                    document.getElementById('attendanceList').innerHTML = '<tr><td colspan="5" style="text-align: center; color: #9ca3af;">No attendance records found</td></tr>';
+                }
+            } catch (e) {
+                console.error("Error loading attendance:", e);
+                document.getElementById('attendanceList').innerHTML = '<tr><td colspan="5" style="text-align: center; color: #ef4444;">Error loading attendance</td></tr>';
+            }
+        }
+
+        async function loadShifts(forMark = false) {
+            try {
+                const shifts = await apiGet('/shifts');
+                if (forMark) {
+                    document.getElementById('shiftIdMark').innerHTML = '<option>Select Shift</option>' + shifts.map(s => `<option value="${s.shiftId}">${s.shiftName}</option>`).join('');
+                } else {
+                    document.getElementById('shiftId').innerHTML = '<option>Select Shift</option>' + shifts.map(s => `<option value="${s.shiftId}">${s.shiftName}</option>`).join('');
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        window.checkIn = async () => {
+            try {
+                const shiftId = document.getElementById('shiftId').value;
+                if (!shiftId || isNaN(shiftId)) {
+                    alert("Please select a valid shift.");
+                    return;
+                }
+                const response = await apiPost(`/attendance/checkin?shiftId=${shiftId}`);
+                if (response.success) {
+                    alert("Checked in successfully!");
+                    loadAttendance(currentDate);
+                } else {
+                    alert("Error checking in: " + (response.message || "Failed"));
+                }
+            } catch (err) {
+                alert("Error checking in: " + err.message);
+            }
+        };
+
+        window.checkOut = async () => {
+            try {
+                const response = await apiPost('/attendance/checkout');
+                if (response.success) {
+                    alert("Checked out successfully!");
+                    loadAttendance(currentDate);
+                } else {
+                    alert("Error checking out: " + (response.message || "Failed"));
+                }
+            } catch (err) {
+                alert("Error checking out: " + err.message);
+            }
+        };
+
+        document.getElementById('attendanceDate').addEventListener('change', (e) => {
+            currentDate = e.target.value;
+            loadAttendance(currentDate);
+        });
+
+        // Update user info
+        const user = getUser();
+        document.querySelector('.user-name').innerText = user.username;
+        document.querySelector('.user-role').innerText = user.role;
+        document.querySelector('.user-avatar').innerText = user.username.charAt(0).toUpperCase();
+
+        // Role-based setup
+        if (user.role === 'EMPLOYEE') {
+            // Show employee checkin form, hide admin
+            document.getElementById('adminCard').style.display = 'none';
+            document.getElementById('employeeCard').style.display = 'block';
+            // Change table headers for my history
+            document.querySelector('thead tr').innerHTML = '<th>Date</th><th>Check In</th><th>Check Out</th><th>Action</th><th>Status</th>';
+            // Use my-history endpoint
+            loadAttendance = async (date) => {
+                try {
+                    const attendance = await apiGet('/attendance/my-history');
+                    // Fetch holidays for date mapping when checkInTime is null
+                    const holidays = await apiGet('/holidays');
+                    const holidayMap = {};
+                    holidays.forEach(h => {
+                        holidayMap[h.holidayId] = h;
+                    });
+
+                    if (Array.isArray(attendance)) {
+                        document.getElementById('attendanceList').innerHTML = attendance.map(a => {
+                            let dateStr;
+                            if (a.checkInTime) {
+                                dateStr = new Date(a.checkInTime).toLocaleDateString();
+                            } else if (a.holidayId && holidayMap[a.holidayId]) {
+                                dateStr = new Date(holidayMap[a.holidayId].holidayDate).toLocaleDateString();
+                            } else {
+                                dateStr = '-';
+                            }
+                            const ciTime = a.checkInTime ? new Date(a.checkInTime).toLocaleTimeString() : '-';
+                            const coTime = a.checkOutTime ? new Date(a.checkOutTime).toLocaleTimeString() : '-';
+                            const action = a.checkOutTime ? '<span class="badge badge-success">Completed</span>' : '<span class="badge badge-warning">Checked In</span>';
+                            const status =a.method;
+                            return `<tr><td>${dateStr}</td><td>${ciTime}</td><td>${coTime}</td><td>${action}</td><td>${status}</td></tr>`;
+                        }).join('');
+                    } else {
+                        document.getElementById('attendanceList').innerHTML = '<tr><td colspan="5" style="text-align: center; color: #9ca3af;">No attendance records found</td></tr>';
+                    }
+                } catch (e) {
+                    console.error("Error loading attendance:", e);
+                    document.getElementById('attendanceList').innerHTML = '<tr><td colspan="5" style="text-align: center; color: #ef4444;">Error loading attendance</td></tr>';
+                }
+            };
+            document.getElementById('attendanceDate').style.display = 'none';
+            document.querySelector('label[for="attendanceDate"]').style.display = 'none';
+            loadShifts();
+            loadAttendance(currentDate);
+        } else {
+            // Initialize for admin/manager
+            document.getElementById('adminCard').style.display = 'block';
+            document.getElementById('employeeCard').style.display = 'none';
+            document.getElementById('attendanceDate').value = currentDate;
+            loadEmployees();
+            loadShifts(true);
+            loadAttendance(currentDate);
+        }
+    </script>
+</body>
+
+</html>
