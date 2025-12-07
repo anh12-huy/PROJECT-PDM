@@ -1,0 +1,168 @@
+EMPLOYEE ATTENDANCE MANAGEMENT SYSTEM
+1. Overview
+•	This project comprises the Frontend (FE) client and a Backend (BE) API for an Employee Attendance Management System.
+•	FE Tech Stack: Vanilla JavaScript (ES Modules), HTML5, CSS. The FE is a Single Page Application (SPA).
+•	BE Tech Stack: Assumed to be Java/Spring Boot.
+•	The FE communicates with the BE via RESTful endpoints under /api/....
+•	Core Features: User authentication, employee management, attendance tracking, department organization, shift management, and leave requests. Role-based access control (RBAC) is enforced by the BE and reflected in the FE UI.
+2. Prerequisites
+•	Backend API Server (BE) must be running.
+o	Expected BE base URL: http://localhost:8081
+o	Endpoints under /api/... must be available (e.g., /api/auth/login, etc.).
+o	BE must allow CORS for origin http://localhost:8081 (if testing cross-origin requests).
+•	A modern web browser supporting ES Modules (Chrome, Edge, Firefox, etc.).
+•	Optional: Local development environment for debugging BE endpoints (e.g., Postman or curl).
+3. Directory Structure (FE)
+•	Root Directory
+o	server.js (Node.js static server for FE)
+o	UserLogin.html (Entry point)
+o	Dashboard.html
+o	Employees.html
+o	Attendance.html
+o	Department.html
+o	Shifts.html
+o	Holiday.html
+o	LeaveRecords.html
+o	API Test Helper.html (Debug/CORS helper)
+o	css/
+	styles.css (Global styles)
+o	js/
+	api.js (Fetch wrapper, auth headers)
+	App.js (Common utilities: checkLogin, checkRole, getUser)
+	SideBar.js (UI sidebar rendering)
+4. How to Run
+This section provides step-by-step instructions to run both FE and BE locally. Adjust ports or endpoints if your BE configuration differs.
+Frontend (FE)
+•	4.1 Start the FE server
+o	Open a terminal and navigate to the FE project root (directory containing server.js and UserLogin.html).
+o	Run the FE server:
+o	Expected console output:
+text
+Frontend server running at http://localhost:8081  
+•	4.2 Access FE in the browser
+o	Open http://localhost:8081/UserLogin.html in your browser.
+o	The FE will attempt to communicate with BE at http://localhost:8081/api/...
+Backend (BE)
+•	4.3 Ensure BE is running
+o	Start your BE server (e.g., a Spring Boot application) on port 8081.
+o	BE must expose endpoints under /api/ (e.g., /api/auth/login).
+•	4.4 Be aware of CORS
+o	If FE (8081) and BE (8081) are separate processes, BE must allow cross-origin requests from http://localhost:8081.
+o	If CORS is not configured, FE requests will fail with CORS errors. Configure BE to allow origin http://localhost:8081 or enable a permissive CORS policy during development.
+•	4.5 Verifying API connectivity
+o	Use the included API Test Helper.html in FE to manually verify connectivity:
+	Open http://localhost:8081/API Test Helper.html
+	Use it to issue test requests to BE endpoints (e.g., POST /api/auth/login) and verify responses.
+o	If the API Test Helper works, FE requests should also work.
+•	4.6 Optional local orchestration
+o	You can run FE and BE together in a single script (e.g., npm script or docker-compose) by creating scripts to start BE and FE sequentially.
+5. Test Credentials (Default Data)
+The following are sample credentials used to test FE/BE integration, illustrating Admin, Manager, and Employee roles. Use these accounts to verify role-based access behavior in the FE (where the UI shows/hides features based on role) and in the BE (where endpoints enforce permissions).
+Important: These credentials are examples. Ensure your BE database is pre-populated accordingly, or adapt based on your actual seed data.
+•	5.1 Admin (Admin role)
+o	UserID: 1
+o	Username/Email: admin@example.com (adjust to BE configuration)
+o	Password: 123456
+o	Role: Admin
+o	Access rights (expected in BE and reflected in FE):
+Full access across the system
+Create/Edit/Delete Employees
+Manage Departments, Shifts, Holidays
+Approve/Deny Leave Requests
+Mark attendance for all employees
+o	Restrictions:
+None (Admin has unrestricted access in this test scenario)
+•	5.2 Manager (Manager role)
+o	UserID: 2
+o	Username/Email: manager@example.com
+o	Password: 123456
+o	Role: Manager
+o	Access rights:
+Dashboard overview for department
+View attendance for self and department employees
+View department employees
+Approve/Deny leave requests for employees within their department
+View their own profile
+View holidays
+o	Restrictions:
+Cannot delete data
+Cannot manage other employees outside their department
+Cannot edit Departments/Shifts/Holidays
+Cannot perform actions that require Admin permissions (e.g., global user management)
+•	5.3 Employee (Employee role)
+o	UserID: 3
+o	Username/Email: employee@example.com
+o	Password: 123456
+o	Role: Employee
+o	Access rights:
+Check In / Check Out
+Select Shift (Day, Night, Morning, Evening)
+View personal attendance history
+o	Restrictions:
+Cannot edit or delete attendance
+Cannot mark attendance for others
+Cannot view/approve others' leave requests
+6. File Descriptions (BE-agnostic)
+•	server.js
+o	Node.js static HTTP server to serve FE assets (HTML/CSS/JS).
+o	Listens on port 8081.
+•	UserLogin.html
+o	Login (and registration) page. Submits POST /api/auth/login and stores JWT in localStorage.
+•	Dashboard.html
+o	Landing page after login; displays stats and quick actions.
+•	Employees.html
+o	Admin: CRUD for employees. Employee: view own profile.
+•	Attendance.html
+o	Admin: mark attendance for any employee. Employee: self-attendance controls.
+o	Shows attendance history.
+•	Department.html
+o	Manage departments (Admin/Manager access).
+•	Shifts.html
+o	Define shifts (Start Time / End Time).
+•	Holiday.html
+o	Manage holidays.
+•	LeaveRecords.html
+o	Employee: submit leave requests.
+o	Admin/Manager: approve/deny leave requests.
+•	API Test Helper.html
+o	Utility to troubleshoot FE-BE connectivity (CORS verification).
+7. API Contract (Guidance, to be aligned with BE)
+•	Authentication
+o	POST /api/auth/login
+Request: { username, password } (adjust fields to your BE)
+Response: { token: "JWT", user: { id, role, name, ... } }
+•	User/Profile
+o	GET /api/users/me
+Requires Authorization: Bearer <token>
+Response: user profile including role 
+•	Admin endpoints (examples; adapt to actual BE)
+o	POST /api/employees
+o	GET /api/employees
+o	PUT /api/employees/{id}
+o	DELETE /api/employees/{id}
+o	GET /api/departments
+o	POST /api/departments
+o	etc.
+•	Attendance
+o	POST /api/attendance/checkin
+o	POST /api/attendance/checkout
+o	GET /api/attendance/history?userId=...
+•	Leaves
+o	POST /api/leaves
+o	GET /api/leaves
+o	POST /api/leaves/{id}/approve
+o	POST /api/leaves/{id}/deny
+•	Holidays, Shifts, etc.
+o	Endpoints per BE design.
+8. Running Notes & Troubleshooting
+•	401 Unauthorized
+o	Your session token may have expired. Logout or clear localStorage and re-login.
+•	Network Error / Failed to fetch
+o	Verify BE is running on port 8081.
+o	Verify FE can reach BE (CORS, network).
+•	CORS Errors
+o	Ensure BE allows origin http://localhost:8081 (or disable CORS for development).
+•	Token storage security
+o	localStorage is susceptible to XSS. Consider BE-side HttpOnly cookies for production and update FE accordingly.
+
+
