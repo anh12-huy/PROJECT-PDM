@@ -2,7 +2,8 @@ SYSTEM OVERVIEW
 1. Business Context
 In dynamic business environments, maintaining accurate records of employee presence is crucial for operational efficiency and payroll accuracy. This system modernizes traditional attendance tracking by providing:
 Key Functional Components:
-1.1 Employee Information Management o	Detailed profiles and employment data for all staff members
+1.1 Employee Information Management 
+o	Detailed profiles and employment data for all staff members
 o	Integration with department and role assignments
 1.2.	Real-Time Attendance Tracking 
 o	Digital time clock for check-in/check-out timestamps
@@ -20,7 +21,7 @@ o	Leave balance tracking
 o	Role-based access control (Admin, Manager, Employee)
 o	Data integrity and security measures
 o	Audit trail for all transactions
-System Benefits
+1.7. System Benefits
 By integrating these elements, the system provides:
 •	Critical information for attendance pattern recognition
 •	Enhanced employee accountability
