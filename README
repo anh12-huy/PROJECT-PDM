@@ -241,9 +241,9 @@ css/styles.css
 •	Component-specific styles
 4.INSTALLATION & SETUP
 Test Backend API:Test using curl
-curl http://localhost:8080/api/auth/login
+curl http://localhost:8081/pi/auth/login
 Expected: Error message (endpoint requires POST with body)
-http://localhost:8080/api/auth/login
+http://localhost:8081/api/auth/login
 •	You should see an error page (expected, as this endpoint requires POST request)
 Frontend Setup & Execution
 Step 3: Start Frontend Server
