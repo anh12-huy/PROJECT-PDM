@@ -2,22 +2,21 @@ SYSTEM OVERVIEW
 1. Business Context
 In dynamic business environments, maintaining accurate records of employee presence is crucial for operational efficiency and payroll accuracy. This system modernizes traditional attendance tracking by providing:
 Key Functional Components:
-1.	Employee Information Management 
-o	Detailed profiles and employment data for all staff members
+1.1 Employee Information Management o	Detailed profiles and employment data for all staff members
 o	Integration with department and role assignments
-2.	Real-Time Attendance Tracking 
+1.2.	Real-Time Attendance Tracking 
 o	Digital time clock for check-in/check-out timestamps
 o	Automatic work hour calculations
 o	Overtime and late arrival detection
-3.	Shift Scheduling 
+1.3.	Shift Scheduling 
 o	Tools to assign and manage work shifts
 o	Ensure adequate coverage across departments
 o	Support for multiple shift types (Morning, Day, Evening, Night)
-4.	Leave Approval Workflow 
+1.4.	Leave Approval Workflow 
 o	Structured process for leave requests
 o	Manager review and approval system
 o	Leave balance tracking
-5.	Compliance & Security 
+1.5.	Compliance & Security 
 o	Role-based access control (Admin, Manager, Employee)
 o	Data integrity and security measures
 o	Audit trail for all transactions
@@ -52,7 +51,6 @@ Development Tools
 •	Version Control: Git & GitHub
 •	Database Tools: MySQL Workbench, SQL Server Management Studio
 •	API Testing: Postman, curl, built-in API Test Helper
-
 *System Architecture
 ┌─────────────────────────────────────────────────────────┐
 │                    Client Layer                          │
@@ -91,9 +89,7 @@ Development Tools
 │  │  └──────────┘  └──────────┘  └──────────┘     │   │
 │  └─────────────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────┘
-
 3.STRUCTURE
-
 Complete Project Structure
 Employee_Attendance/
 │
