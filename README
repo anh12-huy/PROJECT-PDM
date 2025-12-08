@@ -1,168 +1,1215 @@
-EMPLOYEE ATTENDANCE MANAGEMENT SYSTEM
-1. Overview
-•	This project comprises the Frontend (FE) client and a Backend (BE) API for an Employee Attendance Management System.
-•	FE Tech Stack: Vanilla JavaScript (ES Modules), HTML5, CSS. The FE is a Single Page Application (SPA).
-•	BE Tech Stack: Assumed to be Java/Spring Boot.
-•	The FE communicates with the BE via RESTful endpoints under /api/....
-•	Core Features: User authentication, employee management, attendance tracking, department organization, shift management, and leave requests. Role-based access control (RBAC) is enforced by the BE and reflected in the FE UI.
-2. Prerequisites
-•	Backend API Server (BE) must be running.
-o	Expected BE base URL: http://localhost:8081
-o	Endpoints under /api/... must be available (e.g., /api/auth/login, etc.).
-o	BE must allow CORS for origin http://localhost:8081 (if testing cross-origin requests).
-•	A modern web browser supporting ES Modules (Chrome, Edge, Firefox, etc.).
-•	Optional: Local development environment for debugging BE endpoints (e.g., Postman or curl).
-3. Directory Structure (FE)
-•	Root Directory
-o	server.js (Node.js static server for FE)
-o	UserLogin.html (Entry point)
-o	Dashboard.html
-o	Employees.html
-o	Attendance.html
-o	Department.html
-o	Shifts.html
-o	Holiday.html
-o	LeaveRecords.html
-o	API Test Helper.html (Debug/CORS helper)
-o	css/
-	styles.css (Global styles)
-o	js/
-	api.js (Fetch wrapper, auth headers)
-	App.js (Common utilities: checkLogin, checkRole, getUser)
-	SideBar.js (UI sidebar rendering)
-4. How to Run
-This section provides step-by-step instructions to run both FE and BE locally. Adjust ports or endpoints if your BE configuration differs.
-Frontend (FE)
-•	4.1 Start the FE server
-o	Open a terminal and navigate to the FE project root (directory containing server.js and UserLogin.html).
-o	Run the FE server:
-o	Expected console output:
-text
-Frontend server running at http://localhost:8081  
-•	4.2 Access FE in the browser
-o	Open http://localhost:8081/UserLogin.html in your browser.
-o	The FE will attempt to communicate with BE at http://localhost:8081/api/...
-Backend (BE)
-•	4.3 Ensure BE is running
-o	Start your BE server (e.g., a Spring Boot application) on port 8081.
-o	BE must expose endpoints under /api/ (e.g., /api/auth/login).
-•	4.4 Be aware of CORS
-o	If FE (8081) and BE (8081) are separate processes, BE must allow cross-origin requests from http://localhost:8081.
-o	If CORS is not configured, FE requests will fail with CORS errors. Configure BE to allow origin http://localhost:8081 or enable a permissive CORS policy during development.
-•	4.5 Verifying API connectivity
-o	Use the included API Test Helper.html in FE to manually verify connectivity:
-	Open http://localhost:8081/API Test Helper.html
-	Use it to issue test requests to BE endpoints (e.g., POST /api/auth/login) and verify responses.
-o	If the API Test Helper works, FE requests should also work.
-•	4.6 Optional local orchestration
-o	You can run FE and BE together in a single script (e.g., npm script or docker-compose) by creating scripts to start BE and FE sequentially.
-5. Test Credentials (Default Data)
-The following are sample credentials used to test FE/BE integration, illustrating Admin, Manager, and Employee roles. Use these accounts to verify role-based access behavior in the FE (where the UI shows/hides features based on role) and in the BE (where endpoints enforce permissions).
-Important: These credentials are examples. Ensure your BE database is pre-populated accordingly, or adapt based on your actual seed data.
-•	5.1 Admin (Admin role)
-o	UserID: 1
-o	Username/Email: admin@example.com (adjust to BE configuration)
-o	Password: 123456
-o	Role: Admin
-o	Access rights (expected in BE and reflected in FE):
-Full access across the system
-Create/Edit/Delete Employees
-Manage Departments, Shifts, Holidays
-Approve/Deny Leave Requests
-Mark attendance for all employees
-o	Restrictions:
-None (Admin has unrestricted access in this test scenario)
-•	5.2 Manager (Manager role)
-o	UserID: 2
-o	Username/Email: manager@example.com
-o	Password: 123456
-o	Role: Manager
-o	Access rights:
-Dashboard overview for department
-View attendance for self and department employees
-View department employees
-Approve/Deny leave requests for employees within their department
-View their own profile
-View holidays
-o	Restrictions:
-Cannot delete data
-Cannot manage other employees outside their department
-Cannot edit Departments/Shifts/Holidays
-Cannot perform actions that require Admin permissions (e.g., global user management)
-•	5.3 Employee (Employee role)
-o	UserID: 3
-o	Username/Email: employee@example.com
-o	Password: 123456
-o	Role: Employee
-o	Access rights:
-Check In / Check Out
-Select Shift (Day, Night, Morning, Evening)
-View personal attendance history
-o	Restrictions:
-Cannot edit or delete attendance
-Cannot mark attendance for others
-Cannot view/approve others' leave requests
-6. File Descriptions (BE-agnostic)
-•	server.js
-o	Node.js static HTTP server to serve FE assets (HTML/CSS/JS).
-o	Listens on port 8081.
-•	UserLogin.html
-o	Login (and registration) page. Submits POST /api/auth/login and stores JWT in localStorage.
-•	Dashboard.html
-o	Landing page after login; displays stats and quick actions.
-•	Employees.html
-o	Admin: CRUD for employees. Employee: view own profile.
-•	Attendance.html
-o	Admin: mark attendance for any employee. Employee: self-attendance controls.
-o	Shows attendance history.
-•	Department.html
-o	Manage departments (Admin/Manager access).
-•	Shifts.html
-o	Define shifts (Start Time / End Time).
-•	Holiday.html
-o	Manage holidays.
-•	LeaveRecords.html
-o	Employee: submit leave requests.
-o	Admin/Manager: approve/deny leave requests.
-•	API Test Helper.html
-o	Utility to troubleshoot FE-BE connectivity (CORS verification).
-7. API Contract (Guidance, to be aligned with BE)
-•	Authentication
-o	POST /api/auth/login
-Request: { username, password } (adjust fields to your BE)
-Response: { token: "JWT", user: { id, role, name, ... } }
-•	User/Profile
-o	GET /api/users/me
-Requires Authorization: Bearer <token>
-Response: user profile including role 
-•	Admin endpoints (examples; adapt to actual BE)
-o	POST /api/employees
-o	GET /api/employees
-o	PUT /api/employees/{id}
-o	DELETE /api/employees/{id}
-o	GET /api/departments
-o	POST /api/departments
-o	etc.
-•	Attendance
-o	POST /api/attendance/checkin
-o	POST /api/attendance/checkout
-o	GET /api/attendance/history?userId=...
-•	Leaves
-o	POST /api/leaves
-o	GET /api/leaves
-o	POST /api/leaves/{id}/approve
-o	POST /api/leaves/{id}/deny
-•	Holidays, Shifts, etc.
-o	Endpoints per BE design.
-8. Running Notes & Troubleshooting
-•	401 Unauthorized
-o	Your session token may have expired. Logout or clear localStorage and re-login.
-•	Network Error / Failed to fetch
-o	Verify BE is running on port 8081.
-o	Verify FE can reach BE (CORS, network).
-•	CORS Errors
-o	Ensure BE allows origin http://localhost:8081 (or disable CORS for development).
-•	Token storage security
-o	localStorage is susceptible to XSS. Consider BE-side HttpOnly cookies for production and update FE accordingly.
+SYSTEM OVERVIEW
+1. Business Context
+In dynamic business environments, maintaining accurate records of employee presence is crucial for operational efficiency and payroll accuracy. This system modernizes traditional attendance tracking by providing:
+Key Functional Components:
+1.	Employee Information Management 
+o	Detailed profiles and employment data for all staff members
+o	Integration with department and role assignments
+2.	Real-Time Attendance Tracking 
+o	Digital time clock for check-in/check-out timestamps
+o	Automatic work hour calculations
+o	Overtime and late arrival detection
+3.	Shift Scheduling 
+o	Tools to assign and manage work shifts
+o	Ensure adequate coverage across departments
+o	Support for multiple shift types (Morning, Day, Evening, Night)
+4.	Leave Approval Workflow 
+o	Structured process for leave requests
+o	Manager review and approval system
+o	Leave balance tracking
+5.	Compliance & Security 
+o	Role-based access control (Admin, Manager, Employee)
+o	Data integrity and security measures
+o	Audit trail for all transactions
+System Benefits
+By integrating these elements, the system provides:
+•	Critical information for attendance pattern recognition
+•	Enhanced employee accountability
+•	Informed decision-making for workforce scheduling
+•	Improved productivity tracking and analysis
+2. TECHNICAL ARCHITECTURE
+Technology Stack
+Backend Technologies
+•	Programming Language: Java 17+
+•	Framework: Spring Boot 3.x
+•	Database: MySQL 8.0+ / Microsoft SQL Server
+•	Authentication: JWT (JSON Web Tokens)
+•	Security: Spring Security with BCrypt password encoding
+•	API Architecture: RESTful services
+•	Database Connectivity: JDBC (Java Database Connectivity)
+Frontend Technologies
+•	Core: Vanilla JavaScript (ES Modules)
+•	Markup: HTML5
+•	Styling: CSS3
+•	Architecture: Single Page Application (SPA)
+•	HTTP Client: Fetch API
+Desktop Interface (Optional)
+•	Framework: JavaFX (for administrative desktop interface)
+•	Purpose: Complex management tasks and advanced reporting
+Development Tools
+•	IDEs: IntelliJ IDEA, Eclipse, Visual Studio Code
+•	Build Tool: Maven 3.6+
+•	Version Control: Git & GitHub
+•	Database Tools: MySQL Workbench, SQL Server Management Studio
+•	API Testing: Postman, curl, built-in API Test Helper
+
+*System Architecture
+┌─────────────────────────────────────────────────────────┐
+│                    Client Layer                          │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  │
+│  │ Web Browser  │  │   Desktop    │  │   Mobile     │  │
+│  │  (HTML/CSS/JS)│  │   (JavaFX)   │  │   (Future)   │  │
+│  └──────────────┘  └──────────────┘  └──────────────┘  │
+└─────────────────────────────────────────────────────────┘
+                         │
+                         │ HTTP/HTTPS (REST API)
+                         │
+┌─────────────────────────────────────────────────────────┐
+│              Application Server Layer                    │
+│  ┌─────────────────────────────────────────────────┐   │
+│  │         Spring Boot Application                  │   │
+│  │  ┌──────────┐  ┌──────────┐  ┌──────────┐     │   │
+│  │  │Controllers│  │ Services │  │   DTOs   │     │   │
+│  │  └──────────┘  └──────────┘  └──────────┘     │   │
+│  │  ┌──────────────────────────────────────┐     │   │
+│  │  │     Spring Security + JWT             │     │   │
+│  │  └──────────────────────────────────────┘     │   │
+│  │  ┌──────────────────────────────────────┐     │   │
+│  │  │    Repository Layer (JDBC/JPA)       │     │   │
+│  │  └──────────────────────────────────────┘     │   │
+│  └─────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────┘
+                         │
+                         │ JDBC
+                         │
+┌─────────────────────────────────────────────────────────┐
+│                  Database Layer                          │
+│  ┌─────────────────────────────────────────────────┐   │
+│  │            MySQL / SQL Server                    │   │
+│  │  ┌──────────┐  ┌──────────┐  ┌──────────┐     │   │
+│  │  │  Tables  │  │  Views   │  │ Triggers │     │   │
+│  │  └──────────┘  └──────────┘  └──────────┘     │   │
+│  └─────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────┘
+
+3.STRUCTURE
+
+Complete Project Structure
+Employee_Attendance/
+│
+├── README.md                          This documentation file
+├── pom.xml                            Maven project configuration
+├── server.js                          Frontend static file server 
+│
+├── src/main/                          Backend source code
+│   ├── java/
+│   │   └── employeeAttendanceSystem/
+│   │       └── com/employeeSystem/
+│   │           ├── Application.java            Spring Boot main class
+│   │           │
+│   │           ├── Config/                     Configuration classes
+│   │           │   └── SecurityConfig.java     Spring Security config
+│   │           │
+│   │           ├── controller/                 REST API Controllers
+│   │           │   ├── AuthController.java
+│   │           │   ├── AttendanceController.java
+│   │           │   ├── DepartmentController.java
+│   │           │   ├── EmployeeController.java
+│   │           │   ├── HolidayController.java
+│   │           │   ├── LeaveRecordController.java
+│   │           │   ├── ShiftController.java
+│   │           │   └── UserLoginController.java
+│   │           │
+│   │           ├── model/                      DTOs (Data Transfer Objects)
+│   │           │   ├── AttendanceRequestDTO.java
+│   │           │   ├── AttendanceResponseDTO.java
+│   │           │   ├── DepartmentRequestDTO.java
+│   │           │   ├── DepartmentResponseDTO.java
+│   │           │   ├── EmployeeRequestDTO.java
+│   │           │   ├── EmployeeResponseDTO.java
+│   │           │   └── ... (other DTOs)
+│   │           │
+│   │           ├── repository/                 Data Access Layer
+│   │           │   ├── entity/                 Database entities
+│   │           │   │   ├── AttendanceEntity.java
+│   │           │   │   ├── DepartmentEntity.java
+│   │           │   │   ├── EmployeeEntity.java
+│   │           │   │   ├── HolidayEntity.java
+│   │           │   │   ├── LeaveRecordEntity.java
+│   │           │   │   ├── ShiftEntity.java
+│   │           │   │   └── UserLoginEntity.java
+│   │           │   │
+│   │           │   ├── AttendanceRepository.java
+│   │           │   ├── DepartmentRepository.java
+│   │           │   ├── EmployeeRepository.java
+│   │           │   └── ... (repository interfaces)
+│   │           │
+│   │           ├── service/                    Business Logic Layer
+│   │           │   ├── impl/                   Service implementations
+│   │           │   ├── AttendanceService.java
+│   │           │   ├── AuthService.java
+│   │           │   ├── DepartmentService.java
+│   │           │   └── ... (service interfaces)
+│   │           │
+│   │           ├── Security/                   Security components
+│   │           │   ├── JwtTokenProvider.java
+│   │           │   ├── JwtAuthenticationFilter.java
+│   │           │   ├── JwtAuthenticationEntryPoint.java
+│   │           │   └── TokenBlacklist.java
+│   │           │
+│   │           └── Request/                    Request/Response wrappers
+│   │               ├── AuthResponse.java
+│   │               ├── LoginRequest.java
+│   │               └── RegisterRequest.java
+│   │
+│   └── resources/
+│       └── application.properties             Database & server config
+│
+├── target/                                    Maven build output (generated)
+│
+├── Frontend Files (HTML/CSS/JS)               Frontend application
+│   ├── UserLogin.html                         Login/Register page
+│   ├── Dashboard.html                         Main dashboard
+│   ├── Employees.html                         Employee management
+│   ├── Attendance.html                        Attendance tracking
+│   ├── Department.html                        Department management
+│   ├── Shifts.html                            Shift management
+│   ├── Holiday.html                           Holiday management
+│   ├── LeaveRecords.html                      Leave request management
+│   ├── ApiTestHelper.html                     API connectivity tester
+│   │
+│   ├── css/
+│   │   └── styles.css                         Global stylesheet
+│   │
+│   └── js/
+│       ├── api.js                             API communication layer
+│       ├── App.js                             Common utilities
+│       ├── Charts.js                          Chart rendering (optional)
+│       └── SideBar.js                         Sidebar component
+│
+└── .git/                                      Git version control
+Key File Descriptions
+Backend Files
+Application.java
+•	Main entry point for Spring Boot application
+•	Configures component scanning and auto-configuration
+SecurityConfig.java
+•	Configures Spring Security
+•	Defines CORS policy
+•	Sets up JWT authentication filter chain
+•	Configures password encoding (BCrypt)
+Controllers
+•	Handle incoming HTTP requests
+•	Map to service layer methods
+•	Return appropriate HTTP responses
+•	Apply role-based security annotations
+DTOs (Data Transfer Objects)
+•	Define request/response structures
+•	Separate database entities from API contracts
+•	Include validation annotations
+Entities
+•	Map to database tables
+•	Define relationships between tables
+•	Include JPA annotations (if using JPA)
+Repositories
+•	Interface with database
+•	Execute SQL queries
+•	Return entity objects
+Services
+•	Implement business logic
+•	Validate inputs
+•	Coordinate between controllers and repositories
+•	Apply transaction management
+Frontend Files
+server.js
+•	Simple .js HTTP server
+•	Serves static files (HTML/CSS/JS)
+•	Runs on port 8081
+HTML Pages
+•	Each page corresponds to a feature module
+•	Use ES Modules for JavaScript
+•	Link to shared CSS and JS files
+js/api.js
+•	Wraps Fetch API
+•	Automatically adds JWT token to requests
+•	Handles common HTTP errors
+•	Provides typed API methods
+js/App.js
+•	Authentication utilities (checkLogin, getUser)
+•	Role-based access control (checkRole)
+•	Redirect logic
+css/styles.css
+•	Global styles for all pages
+•	Responsive design utilities
+•	Component-specific styles
+4.INSTALLATION & SETUP
+Test Backend API:Test using curl
+curl http://localhost:8080/api/auth/login
+Expected: Error message (endpoint requires POST with body)
+http://localhost:8080/api/auth/login
+•	You should see an error page (expected, as this endpoint requires POST request)
+Frontend Setup & Execution
+Step 3: Start Frontend Server
+Frontend server running at http://localhost:8081
+Open a browser and navigate to http://localhost:8081/Dashboard.html after logging in.
+Step 4: Access Application in Browser
+Open your web browser
+Navigate to login page: http://localhost:8081/UserLogin.html
+You should see:
+   - Login form with UserID and Password fields
+   - "Login" and "Register" tabs
+   - "Remember me" checkbox
+   - "Forgot password?" link
+First Login
+Step 1: Choose Test Account
+Login as ADMIN:
+UserID: 1
+Password: 123456
+Step 2: Click "Sign In" Button
+Step 3: Verify Successful Login
+Expected behavior:
+- Redirect to Dashboard.html
+- See statistics cards (Total Employees, Attendance, etc.)
+- Sidebar navigation visible
+- User avatar and role displayed in top-right corner
+Step 4: Test Navigation
+Click through sidebar menu:
+- ✅ Dashboard
+- ✅ Employees
+- ✅ Attendance
+- ✅ Department
+- ✅ Shifts
+- ✅ Holiday
+- ✅ Leave Records
+5. TEST CREDENTIALS & ROLE PERMISSIONS
+5.1 ADMIN Role
+Login Credentials:
+UserID: 1
+Username: nnahuy
+Password: 123456
+Role: ADMIN
+Full System Access:
+| Feature | Create | Read | Update | Delete |
+|---------|--------|------|--------|--------|
+| Employees | ✅ | ✅ | ✅ | ✅ |
+| Departments | ✅ | ✅ | ✅ | ✅ |
+| Shifts | ✅ | ✅ | ✅ | ✅ |
+| Holidays | ✅ | ✅ | ✅ | ✅ |
+| Attendance (All) | ✅ | ✅ | ✅ | ✅ |
+| Leave Requests (All) | ✅ | ✅ | ✅ | ✅ |
+Specific Permissions:
+- ✅ View all dashboard statistics
+- ✅ Access all pages without restriction
+- ✅ Manage employee profiles (add/edit/delete)
+- ✅ Assign employees to departments
+- ✅ Create and modify shifts
+- ✅ Mark attendance for ANY employee
+- ✅ Approve/Deny ALL leave requests (all departments)
+- ✅ Manage company-wide holidays
+- ✅ Generate all types of reports
+- ✅ Modify system settings
+Restrictions:
+- ❌ None - Full administrative access
+Use Cases:
+- HR Director managing entire organization
+- System Administrator configuring system
+- Executive viewing company-wide reports
+8.2 MANAGER Role
+Login Credentials:
+```
+UserID: 3
+Username: ntan
+Password: 123456
+Role: MANAGER
+```
+Department-Level Access:
+| Feature | Create | Read | Update | Delete |
+|---------|--------|------|--------|--------|
+| Employees (Own Dept) | ❌ | ✅ | ❌ | ❌ |
+| Departments | ❌ | ✅ | ❌ | ❌ |
+| Shifts | ❌ | ✅ | ❌ | ❌ |
+| Holidays | ❌ | ✅ | ❌ | ❌ |
+| Attendance (Self) | ✅ | ✅ | ❌ | ❌ |
+| Attendance (Own Dept) | ❌ | ✅ | ❌ | ❌ |
+| Leave Requests (Own Dept) | ❌ | ✅ | ✅ | ❌ |
+Specific Permissions:
+- ✅ View dashboard with department-specific data
+- ✅ View employees in managed department
+- ✅ Check-in/Check-out (self-service)
+- ✅ View attendance for department employees
+- ✅ Approve/Deny leave requests for department employees only
+- ✅ View own profile and attendance history
+- ✅ View company holidays
+- ✅ Generate department-specific reports
+Restrictions:
+- ❌ Cannot add/edit/delete employees
+- ❌ Cannot manage departments or shifts
+- ❌ Cannot create/edit holidays
+- ❌ Cannot approve leave requests outside their department
+- ❌ Cannot access system-wide configuration
+- ❌ Cannot delete any data
+- ❌ Cannot mark attendance for others
+Use Cases:
+- Department Manager reviewing team attendance
+- Supervisor approving subordinate leave requests
+- Team Lead monitoring department performance
+8.3 EMPLOYEE Role
+Login Credentials:
+UserID: 3
+Username: ndhai
+Password: 123456
+Role: EMPLOYEE
+Self-Service Access:
+Feature	Create	Read	Update	Delete
+Own Profile	❌	✅	❌	❌
+Own Attendance	✅	✅	❌	❌
+Leave Requests (Own)	✅	✅	✅*	❌
+Holidays	❌	✅	❌	❌
+Can only update PENDING leave requests
+Specific Permissions:
+•	✅ Check-In with shift selection
+•	✅ Check-Out
+•	✅ View personal attendance history
+•	✅ Submit leave requests (Annual, Medical, Personal)
+•	✅ View leave request status (Pending/Approved/Rejected)
+•	✅ Edit pending leave requests
+•	✅ View own profile information
+•	✅ View company holiday calendar
+•	✅ View own shift schedule
+Restrictions:
+•	❌ Cannot view other employees' data
+•	❌ Cannot edit attendance records
+•	❌ Cannot mark attendance for others
+•	❌ Cannot approve/deny any leave requests
+•	❌ Cannot access employee list
+•	❌ Cannot access department management
+•	❌ Cannot access shift management
+•	❌ Cannot access admin features
+•	❌ Cannot view dashboard (redirected to own profile)
+Use Cases:
+•	Employee recording daily attendance
+•	Staff member requesting vacation time
+•	Worker viewing personal attendance history
+Page Access Matrix
+Page	ADMIN	MANAGER	EMPLOYEE
+UserLogin.html	✅	✅	✅
+Dashboard.html	✅ Full	✅ Dept Only	❌ Redirect
+Employees.html	✅ Full CRUD	✅ View Only	✅ Own Profile
+Attendance.html	✅ All	✅ Self	✅ Self
+Department.html	✅ Full CRUD	✅ View Only	✅ View Only
+Shifts.html	✅ Full CRUD	✅ View Only	✅ View Only
+Holiday.html	✅ Full CRUD	✅ View Only	✅ View Only
+LeaveRecords.html	✅ All	✅ Dept Only	✅ Own Only
+5.2 UserLogin.html - Authentication Page
+Purpose: Entry point for user authentication and registration
+Features:
+* Login Tab 
+o	UserID input field (numeric)
+o	Password input field (masked)
+o	"Remember me" checkbox
+o	"Forgot password?" link
+o	"Sign In" button
+*	Register Tab 
+o	Username input
+o	Password input
+o	Role selection dropdown (Employee/Manager)
+o	Terms agreement checkbox
+o	"Create Account" button
+Technical Details:
+•	Submits POST request to /api/auth/login
+•	Stores JWT token in localStorage
+•	Stores user object (userId, username, role) in localStorage
+•	Redirects based on role: 
+o	ADMIN/MANAGER → Dashboard.html
+o	EMPLOYEE → Employees.html (own profile)
+Security:
+NN
+Continue
+•	Passwords transmitted over HTTPS (in production)
+•	JWT token with expiration
+•	Role-based redirect prevents unauthorized access
+User Flow:
+1. User enters credentials
+2. Click "Sign In"
+3. Frontend sends POST /api/auth/login
+4. Backend validates credentials
+5. Backend returns JWT token + user info
+6. Frontend stores token & user in localStorage
+7. Frontend redirects to appropriate page
+5.3 Dashboard.html - Overview & Statistics
+Purpose: Central hub showing system-wide or department-specific metrics
+Role-Based Display:
+ADMIN View:
+•	✅ Total Employees (company-wide)
+•	✅ Today's Attendance count
+•	✅ Pending Leave Requests
+•	✅ Upcoming Holidays
+•	✅ Department-wise employee distribution chart
+•	✅ Quick action buttons for all features
+MANAGER View:
+•	✅ Total Employees (department only)
+•	✅ Today's Attendance (department only)
+•	✅ Pending Leave Requests (department only)
+•	✅ Upcoming Holidays (company-wide)
+•	✅ Quick actions for department tasks
+EMPLOYEE View:
+•	❌ Redirected to Employees.html (own profile)
+Statistics Cards:
+1.	Total Employees 
+o	Count of active employees
+o	Blue color scheme
+o	Icon: 👥
+2.	Today's Attendance 
+o	Number of check-ins for current date
+o	Green color scheme
+o	Icon: ✓
+3.	Pending Leave Requests 
+o	Count of requests awaiting approval
+o	Orange color scheme
+o	Icon: 📋
+4.	Holidays 
+o	Total company holidays
+o	Red color scheme
+o	Icon: 🎉
+Upcoming Holidays Section:
+•	Lists next 5 holidays
+•	Shows holiday name and date
+•	Scrollable if more than 5
+Department Chart:
+•	Bar chart showing employees per department
+•	Uses Chart.js or canvas rendering
+•	Color-coded bars
+Quick Actions Panel:
+•	"Add New Employee" button → Employees.html
+•	"Mark Attendance" button → Attendance.html
+•	"Manage Leaves" button → LeaveRecords.html
+•	"Add Holiday" button → Holiday.html
+System Info Panel:
+•	Last updated timestamp
+•	System status indicator
+•	Version information
+Auto-refresh:
+•	Dashboard data refreshes every 30 seconds
+•	Visual indicator during refresh
+* Employees.html - Employee Management
+Purpose: Manage employee records and profiles
+Role-Based Features:
+ADMIN Access:
+•	✅ View all employees in table
+•	✅ Add new employee (modal form)
+•	✅ Edit employee details
+•	✅ Delete employee
+•	✅ Search/filter employees
+•	✅ Assign employees to departments
+MANAGER Access:
+•	✅ View employees in managed department
+•	❌ Add/Edit/Delete disabled
+EMPLOYEE Access:
+•	✅ View own profile only
+•	❌ All management features hidden
+•	Page title changes to "My Profile"
+Employee Table Columns:
+Column	Description
+ID	Employee ID (auto-generated)
+Name	First Name + Last Name
+Email	Contact email
+Department	Department name
+Joining Date	Date hired
+Status	Active/Inactive badge
+Actions	Edit/Delete buttons
+Add/Edit Employee Modal:
+┌─────────────────────────────────────┐
+│   Add New Employee              [X] │
+├─────────────────────────────────────┤
+│ First Name:  [____________]         │
+│ Last Name:   [____________]         │
+│ Email:       [____________]         │
+│ Department:  [▼ Select Dept]        │
+│ Date of Birth: [📅 Date Picker]    │
+│ Status:      [Active ▼]             │
+│                                     │
+│        [Cancel]  [Save]             │
+└─────────────────────────────────────┘
+Form Validation:
+•	✅ First Name required
+•	✅ Last Name required
+•	✅ Email format validation
+•	✅ Department selection required
+•	✅ Date of Birth in the past
+Search/Filter:
+•	Search by name or email
+•	Filter by department
+•	Filter by status
+API Endpoints Used:
+•	GET /api/employees - List all (ADMIN/MANAGER)
+•	GET /api/employees/{id} - Get single employee
+•	POST /api/employees - Create new (ADMIN only)
+•	PUT /api/employees/{id} - Update (ADMIN only)
+•	DELETE /api/employees/{id} - Delete (ADMIN only)
+* Attendance.html - Attendance Tracking
+Purpose: Record and view attendance data
+Two Modes:
+ADMIN/MANAGER Mode:
+Manual Attendance Marking:
+┌─────────────────────────────────────────┐
+│  📋 Mark Attendance                     │
+├─────────────────────────────────────────┤
+│ Employee:    [▼ Select Employee]        │
+│ Shift:       [▼ Select Shift]           │
+│ Check In:    [📅 DateTime Picker]       │
+│                                         │
+│           [Mark Attendance]              │
+└─────────────────────────────────────────┘
+Features:
+•	Select any employee
+•	Select shift type
+•	Specify check-in timestamp
+•	Manual attendance recording
+•	View all employees' attendance
+EMPLOYEE Mode:
+Self-Service Attendance:
+┌─────────────────────────────────────────┐
+│  📋 Self-Check In/Out                   │
+├─────────────────────────────────────────┤
+│ Shift:  [▼ Select Shift]                │
+│                                         │
+│  [✓ Check In]  [⏱ Check Out]           │
+└─────────────────────────────────────────┘
+Features:
+•	Select shift before check-in
+•	One-click Check In button
+•	One-click Check Out button
+•	View personal attendance history only
+Attendance History Table:
+For ADMIN/MANAGER:
+Employee	Date	Check In	Check Out	Status
+John Doe	12/07/24	08:00 AM	05:00 PM	✅ Completed
+Jane Smith	12/07/24	08:15 AM	-	⏱ Checked In
+For EMPLOYEE:
+Date	Check In	Check Out	Action	Status
+12/07/24	08:00 AM	05:00 PM	✅ Completed	Present
+12/06/24	08:15 AM	05:30 PM	✅ Completed	Present
+Date Filter:
+•	ADMIN/MANAGER: Date picker to view any date
+•	EMPLOYEE: Shows full history (date picker hidden)
+Status Indicators:
+•	✅ Completed: Both check-in and check-out recorded
+•	⏱ Checked In: Only check-in recorded
+•	❌ Absent: No attendance record
+•	🏖 Holiday: Company holiday
+•	🏥 Leave: Approved leave
+Business Rules:
+1.	Cannot check-in twice on same day
+2.	Cannot check-out without check-in
+3.	Check-out must be after check-in
+4.	Shift selection required for check-in
+API Endpoints:
+•	POST /api/attendance/checkin?shiftId={id} - Employee check-in
+•	POST /api/attendance/checkout - Employee check-out
+•	POST /api/attendance/mark - Admin manual marking
+•	GET /api/attendance/my-history - Personal history
+•	GET /api/attendance/by-date?date={yyyy-MM-dd} - Date-specific
+* Department.html - Department Management
+Purpose: Organize company structure and assign managers
+Role Access:
+•	ADMIN: Full CRUD operations
+•	MANAGER: View only
+•	EMPLOYEE: View only
+Create Department Form:
+┌─────────────────────────────────────────┐
+│  🏢 Create Department                   │
+├─────────────────────────────────────────┤
+│ Department Name: [____________]         │
+│ Location:        [____________]         │
+│ Manager ID:      [____________]         │
+│                                         │
+│        [Create Department]               │
+└─────────────────────────────────────────┘
+Department List Table:
+ID	Department Name	Location	Manager ID	Actions
+1	IT Department	Bldg A	5	Edit / Delete
+2	HR Department	Bldg B	3	Edit / Delete
+Features:
+•	✅ Create new departments
+•	✅ Assign department managers
+•	✅ Set department location
+•	✅ View employees per department
+•	✅ Delete departments (if no employees assigned)
+Form Validation:
+•	Department name required
+•	Location required
+•	Manager ID must exist in employee table
+Business Rules:
+1.	Department name must be unique
+2.	One manager per department
+3.	Cannot delete department with active employees
+4.	Manager must be an employee in the system
+API Endpoints:
+•	GET /api/departments - List all departments
+•	GET /api/departments/{id} - Get department details
+•	POST /api/departments - Create department (ADMIN)
+•	PUT /api/departments/{id} - Update department (ADMIN)
+•	DELETE /api/departments/{id} - Delete department (ADMIN)
+•	GET /api/departments/{id}/employees - List employees in department
+* Shifts.html - Shift Management
+Purpose: Define work schedules and shift timings
+Role Access:
+•	ADMIN: Full CRUD
+•	MANAGER: View only
+•	EMPLOYEE: View only
+Add Shift Form:
+┌─────────────────────────────────────────┐
+│  ⏰ Add Shift                           │
+├─────────────────────────────────────────┤
+│ Shift Name:  [____________]             │
+│ Start Time:  [🕐 Time Picker]           │
+│ End Time:    [🕐 Time Picker]           │
+│                                         │
+│           [Add Shift]                    │
+└─────────────────────────────────────────┘
+Shift List Table:
+Shift ID	Shift Name	Start Time	End Time	Actions
+1	Morning Shift	06:00 AM	02:00 PM	Delete
+2	Day Shift	08:00 AM	05:00 PM	Delete
+3	Evening Shift	02:00 PM	10:00 PM	Delete
+4	Night Shift	10:00 PM	06:00 AM	Delete
+Pre-defined Shift Types:
+1.	Morning Shift: 06:00 - 14:00
+2.	Day Shift: 08:00 - 17:00
+3.	Evening Shift: 14:00 - 22:00
+4.	Night Shift: 22:00 - 06:00
+Features:
+•	✅ Create custom shifts
+•	✅ Define start/end times
+•	✅ Delete shifts (if not in use)
+•	✅ Assign employees to shifts (from Employees page)
+Form Validation:
+•	Shift name required
+•	Start time required
+•	End time required
+•	End time must be different from start time
+Business Rules:
+1.	Cannot delete shift assigned to employees
+2.	Shift name should be descriptive
+3.	Support for overnight shifts (night shift)
+API Endpoints:
+•	GET /api/shifts - List all shifts
+•	GET /api/shifts/{id} - Get shift details
+•	POST /api/shifts - Create shift (ADMIN)
+•	PUT /api/shifts/{id} - Update shift (ADMIN)
+•	DELETE /api/shifts/{id} - Delete shift (ADMIN)
+* Holiday.html - Holiday Management
+Purpose: Manage company-wide holidays
+Role Access:
+•	ADMIN: Full CRUD
+•	MANAGER: View only
+•	EMPLOYEE: View only
+Add Holiday Form:
+┌─────────────────────────────────────────┐
+│  🎉 Add Holiday                         │
+├─────────────────────────────────────────┤
+│ Holiday Name: [____________]            │
+│ Holiday Date: [📅 Date Picker]         │
+│                                         │
+│           [Add Holiday]                  │
+└─────────────────────────────────────────┘
+Holiday List Table:
+ID	Holiday Name	Date	Actions
+1	New Year's Day	01/01/2025	Delete
+2	Labor Day	05/01/2025	Delete
+3	National Day	09/02/2025	Delete
+Features:
+•	✅ Add company holidays
+•	✅ Automatic attendance marking as "Holiday" for all employees
+•	✅ View holiday calendar
+•	✅ Delete holidays
+Form Validation:
+•	Holiday name required
+•	Date required
+•	Date cannot be in the past
+Business Rules:
+1.	All employees automatically marked as "Holiday" status
+2.	No attendance marking required on holidays
+3.	Holidays apply company-wide
+Sync Feature:
+•	When holiday is added, system auto-creates attendance records with "Holiday" status for all active employees
+API Endpoints:
+•	GET /api/holidays - List all holidays
+•	GET /api/holidays/{id} - Get holiday details
+•	POST /api/holidays - Create holiday (ADMIN)
+•	PUT /api/holidays/{id} - Update holiday (ADMIN)
+•	DELETE /api/holidays/{id} - Delete holiday (ADMIN)
+•	POST /api/holidays/sync-attendance?holidayId={id} - Sync attendance
+5.9 LeaveRecords.html - Leave Management
+Purpose: Handle leave requests and approvals
+Role-Based Views:
+EMPLOYEE View:
+Submit Leave Request Form:
+┌─────────────────────────────────────────┐
+│  📋 Submit Leave Request                │
+├─────────────────────────────────────────┤
+│ Leave Type:  [▼ Annual / Medical...]   │
+│ Start Date:  [📅 Date Picker]          │
+│ End Date:    [📅 Date Picker]          │
+│ Reason:      [________________]         │
+│              [________________]         │
+│                                         │
+│         [Submit Request]                 │
+└─────────────────────────────────────────┘
+My Leave Requests Table:
+Leave Type	Start Date	End Date	Days	Status	Actions
+Annual	12/20/24	12/22/24	3	🟡 Pending	Edit / Delete
+Medical	12/10/24	12/11/24	2	✅ Approved	View
+Personal	11/15/24	11/15/24	1	❌ Rejected	View
+ADMIN View:
+All Leave Requests Table:
+Employee	Leave Type	Start - End	Days	Status	Actions
+John Doe	Annual	12/20 - 12/22	3	🟡 Pending	Approve / Deny
+Jane Smith	Medical	12/10 - 12/11	2	🟡 Pending	Approve / Deny
+MANAGER View:
+Department Leave Requests (same as ADMIN, but filtered to managed department)
+Leave Types:
+1.	Annual Leave - Vacation, planned time off
+2.	Medical Leave - Sick leave, medical appointments
+3.	Personal Leave - Personal matters, emergencies
+Status Indicators:
+•	🟡 PENDING: Awaiting manager approval
+•	✅ APPROVED: Manager approved request
+•	❌ REJECTED: Manager denied request
+Features for EMPLOYEE:
+•	✅ Submit new leave requests
+•	✅ Edit PENDING requests
+•	✅ Delete PENDING requests
+•	✅ View all personal requests with status
+•	❌ Cannot approve/deny any requests
+Features for ADMIN/MANAGER:
+•	✅ View leave requests (all or department)
+•	✅ Approve requests with one click
+•	✅ Deny requests with one click
+•	✅ Filter by status (Pending/Approved/Rejected)
+•	✅ View employee details
+Form Validation:
+•	Leave type required
+•	Start date required
+•	End date required
+•	End date must be >= start date
+•	Reason required (min 10 characters)
+Business Rules:
+1.	Cannot submit leave for past dates
+2.	Cannot edit/delete approved or rejected requests
+3.	System calculates total leave days automatically
+4.	Managers can only approve for their department
+5.	Admins can approve any request
+API Endpoints:
+•	GET /api/leaves - List leaves (filtered by role)
+•	GET /api/leaves/{id} - Get leave details
+•	POST /api/leaves - Submit leave request
+•	PUT /api/leaves/{id} - Update pending request
+•	DELETE /api/leaves/{id} - Delete pending request
+•	POST /api/leaves/{id}/approve - Approve request
+•	POST /api/leaves/{id}/reject - Reject request
+•	GET /api/leaves/pending - Get pending requests only
+6. DEVELOPMENT NOTES
+6.1 Security Considerations
+Current Implementation (Development):
+•	⚠️ Passwords stored as plain text
+•	⚠️ JWT secret hardcoded in source
+•	⚠️ No HTTPS enforcement
+•	⚠️ LocalStorage used for token storage (vulnerable to XSS)
+Production Recommendations:
+*	Password Security: 
+o	✅ Use BCrypt hashing (already imported, not used)
+o	✅ Implement password strength requirements
+o	✅ Add password reset functionality
+*	Token Security: 
+o	✅ Use HttpOnly cookies instead of localStorage
+o	✅ Implement refresh tokens
+o	✅ Shorten token expiration (15-30 minutes)
+o	✅ Use secure, randomly generated JWT secret
+o	✅ Store secrets in environment variables
+* HTTPS: 
+o	✅ Enable SSL/TLS in production
+o	✅ Use HSTS headers
+o	✅ Redirect HTTP to HTTPS
+*	Input Validation: 
+o	✅ Validate all inputs on backend
+o	✅ Use parameterized queries to prevent SQL injection
+o	✅ Sanitize user inputs
+*	Rate Limiting: 
+o	✅ Implement rate limiting on login endpoint
+o	✅ Add CAPTCHA for failed login attempts
+6.2 Known Limitations
+*	No Email Functionality: 
+o	No email verification on registration
+o	No password reset emails
+o	No leave approval notifications
+*	Limited File Upload: 
+o	Cannot upload profile pictures
+o	Cannot attach documents to leave requests
+*	No Real-Time Updates: 
+o	Page must be refreshed to see changes
+o	No WebSocket for live attendance updates
+*	Basic Reporting: 
+o	Limited report generation
+o	No export to PDF/Excel functionality
+* Mobile Responsiveness: 
+o	Layout optimized for desktop
+o	Mobile UI needs improvement
+* No Audit Trail: 
+o	Limited logging of user actions
+o	No change history for records
+6.3 Future Enhancements
+Priority 1 (Security):
+•	Implement BCrypt password hashing
+•	Use HttpOnly cookies for tokens
+•	Add refresh token mechanism
+•	Implement account lockout after failed logins
+Priority 2 (Features):
+•	Email notifications for leave approvals
+•	Export reports to PDF/Excel
+•	Mobile-responsive design
+•	Profile picture upload
+•	Advanced reporting dashboard
+Priority 3 (UX Improvements):
+•	Real-time notifications
+•	Drag-and-drop shift scheduling
+•	Calendar view for attendance
+•	Employee self-service portal
+•	Manager dashboard with team overview
+Priority 4 (Scalability):
+•	Database connection pooling
+•	Redis caching layer
+•	Load balancing support
+•	Microservices architecture
+•	Docker containerization
+6.4 Testing Strategy
+Manual Testing Checklist:
+•	Login with ADMIN role
+•	Login with MANAGER role
+•	Login with EMPLOYEE role
+•	Create new employee
+•	Update employee details
+•	Delete employee
+•	Create department
+•	Assign manager to department
+•	Create shift
+•	Employee check-in
+•	Employee check-out
+•	Admin mark attendance
+•	Submit leave request
+•	Approve leave request
+•	Reject leave request
+•	Add holiday
+•	View attendance by date
+•	Logout and verify token invalidation
+Automated Testing (Future):
+•	Unit tests for services
+•	Integration tests for controllers
+•	End-to-end tests with Selenium
+•	Load testing with JMeter
+6.5 Code Style Guidelines
+Backend (Java):
+•	Use camelCase for variables and methods
+•	Use PascalCase for class names
+•	Always use @Override annotation
+•	Add JavaDoc comments for public methods
+•	Keep methods under 30 lines
+Frontend (JavaScript):
+•	Use const/let, never var
+•	Use arrow functions
+•	Use async/await for promises
+•	Add JSDoc comments for functions
+•	Use meaningful variable names
+Database:
+•	Use PascalCase for table names
+•	Use camelCase for column names
+•	Always define foreign key constraints
+•	Add indexes for frequently queried columns
+•	Use ENUM for fixed value sets
+6.6 Deployment Guide
+Development Deployment:
+1.	Start MySQL on port 3306
+2.	Run backend: mvn spring-boot:run
+3.	Run frontend:  server.js
+4.	Access: http://localhost:8081/UserLogin.html
+Production Deployment (Example with AWS):
+1.	Database: Amazon RDS for MySQL
+2.	Backend: AWS Elastic Beanstalk or EC2
+3.	Frontend: S3 + CloudFront CDN
+4.	Load Balancer: Application Load Balancer
+5.	SSL Certificate: AWS Certificate Manager
+Docker Deployment:
+dockerfile
+ Backend Dockerfile
+FROM openjdk:17-jdk-slim
+COPY target/*.jar app.jar
+EXPOSE 8080
+ENTRYPOINT ["java","-jar","/app.jar"]
+
+ Frontend Dockerfile
+FROM :16-alpine
+WORKDIR /app
+COPY . .
+EXPOSE 8081
+CMD ["", "server.js"]
+
+ docker-compose.yml
+version: '3.8'
+services:
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: employee_attendance
+    ports:
+      - "3306:3306"
+  
+  backend:
+    build: ./backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+  
+  frontend:
+    build: ./frontend
+    ports:
+      - "8081:8081"
+    depends_on:
+      - backend
+6.7 Database Backup & Recovery
+Backup Command (MySQL):
+bash
+mysqldump -u root -p employee_attendance > backup_$(date +%Y%m%d).sql
+Restore Command:
+bash
+mysql -u root -p employee_attendance < backup_20241207.sql
+Automated Backup Script:
+bash
+!/bin/bash
+DATE=$(date +%Y%m%d_%H%M%S)
+BACKUP_DIR="/backups"
+DB_NAME="employee_attendance"
+
+mysqldump -u root -p${DB_PASS} ${DB_NAME} > ${BACKUP_DIR}/backup_${DATE}.sql
+
+ Keep only last 7 days of backups
+find ${BACKUP_DIR} -name "backup_*.sql" -mtime +7 -delete
+6.8 Monitoring & Logging
+Backend Logging (application.properties):
+properties
+* Enable SQL logging
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+
+* Logging levels
+logging.level.root=INFO
+logging.level.employeeAttendanceSystem=DEBUG
+logging.level.org.springframework.security=DEBUG
+
+* Log file
+logging.file.name=logs/application.log
+logging.file.max-size=10MB
+logging.file.max-history=30
+Recommended Monitoring Tools:
+•	Application Performance: Spring Boot Actuator
+•	Database Performance: MySQL Slow Query Log
+•	Error Tracking: Sentry or Rollbar
+•	Uptime Monitoring: UptimeRobot or Pingdom
+7. APPENDIX
+7.1 Database Schema Reference
+UserLogin Table:
+sql
+CREATE TABLE UserLogin (
+    UserID INT PRIMARY KEY AUTO_INCREMENT,
+    Username VARCHAR(50) UNIQUE NOT NULL,
+    PasswordHash VARCHAR(255) NOT NULL,
+    Role ENUM('ADMIN', 'MANAGER', 'EMPLOYEE') NOT NULL,
+    Last_login TIMESTAMP NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+Employee Table:
+sql
+CREATE TABLE Employee (
+    EmployeeID INT PRIMARY KEY AUTO_INCREMENT,
+    Name VARCHAR(100) NOT NULL,
+    Ssn VARCHAR(20) UNIQUE,
+    Address VARCHAR(255),
+    Email VARCHAR(100) UNIQUE NOT NULL,
+    Salary DECIMAL(10, 2),
+    Sex ENUM('MALE', 'FEMALE'),
+    Birthday DATE,
+    UserID INT UNIQUE,
+    DepartmentID INT,
+    Created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (UserID) REFERENCES UserLogin(UserID),
+    FOREIGN KEY (DepartmentID) REFERENCES Department(DepartmentID)
+);
+Department Table:
+sql
+CREATE TABLE Department (
+    DepartmentID INT PRIMARY KEY AUTO_INCREMENT,
+    Department_name VARCHAR(100) NOT NULL,
+    Location VARCHAR(255),
+    ManagerEmployeeID INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (ManagerEmployeeID) REFERENCES Employee(EmployeeID)
+);
+Shift Table:
+sql
+CREATE TABLE Shift (
+    ShiftID INT PRIMARY KEY AUTO_INCREMENT,
+    Shift_name VARCHAR(50) NOT NULL,
+    Start_time TIME NOT NULL,
+    End_time TIME NOT NULL
+);
+Attendance Table:
+sql
+CREATE TABLE Attendance (
+    AttendanceID INT PRIMARY KEY AUTO_INCREMENT,
+    EmployeeID INT NOT NULL,
+    WorkDate DATE NOT NULL,
+    ShiftID INT,
+    CheckIn TIMESTAMP,
+    CheckOut TIMESTAMP,
+    Status ENUM('PRESENT', 'ABSENT', 'LEAVE', 'HOLIDAY', 'LATE'),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    HolidayID INT,
+    FOREIGN KEY (EmployeeID) REFERENCES Employee(EmployeeID),
+    FOREIGN KEY (ShiftID) REFERENCES Shift(ShiftID),
+    FOREIGN KEY (HolidayID) REFERENCES Holiday(HolidayID),
+    UNIQUE KEY unique_attendance (EmployeeID, WorkDate)
+);
+Holiday Table:
+sql
+CREATE TABLE Holiday (
+    HolidayID INT PRIMARY KEY AUTO_INCREMENT,
+    HolidayName VARCHAR(100) NOT NULL,
+    HolidayDate DATE NOT NULL UNIQUE,
+    Description TEXT
+);
+LeaveType Table:
+sql
+CREATE TABLE LeaveType (
+    LeaveTypeID INT PRIMARY KEY AUTO_INCREMENT,
+    LeaveType_name VARCHAR(50) NOT NULL,
+    MaxDaysAllowed INT NOT NULL
+);
+LeaveRecord Table:
+sql
+CREATE TABLE LeaveRecord (
+    LeaveID INT PRIMARY KEY AUTO_INCREMENT,
+    EmployeeID INT NOT NULL,
+    LeaveTypeID INT NOT NULL,
+    Start_date DATE NOT NULL,
+    End_date DATE NOT NULL,
+    Reason TEXT,
+    Status ENUM('PENDING', 'APPROVED', 'REJECTED') DEFAULT 'PENDING',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (EmployeeID) REFERENCES Employee(EmployeeID),
+    FOREIGN KEY (LeaveTypeID) REFERENCES LeaveType(LeaveTypeID)
+);
+7.2 Environment Variables (Production)
+bash
+- Database
+DB_HOST=localhost
+DB_PORT=3306
+DB_NAME=employee_attendance
+DB_USER=app_user
+DB_PASSWORD=secure_password_here
+
+- JWT
+JWT_SECRET=your_super_secure_random_secret_key_here
+JWT_EXPIRATION=86400000
+
+- Server
+SERVER_PORT=8080
+FRONTEND_URL=http://localhost:8081
+
+- Email (Future)
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=noreply@company.com
+SMTP_PASSWORD=email_password_here
+
+- AWS (Future)
+AWS_ACCESS_KEY_ID=your_access_key
+AWS_SECRET_ACCESS_KEY=your_secret_key
+AWS_REGION=us-east-1
+S3_BUCKET=employee-attendance-uploads
+7.3 Useful SQL Queries
+Get all employees with department names:
+sql
+SELECT e.EmployeeID, e.Name, e.Email, d.Department_name
+FROM Employee e
+LEFT JOIN Department d ON e.DepartmentID = d.DepartmentID;
+Get today's attendance summary:
+sql
+SELECT 
+    COUNT(*) as total_employees,
+    SUM(CASE WHEN a.CheckIn IS NOT NULL THEN 1 ELSE 0 END) as checked_in,
+    SUM(CASE WHEN a.Status = 'ABSENT' THEN 1 ELSE 0 END) as absent
+FROM Employee e
+LEFT JOIN Attendance a ON e.EmployeeID = a.EmployeeID AND a.WorkDate = CURDATE();
+Get employees with pending leave requests:
+sql
+SELECT e.Name, lr.Start_date, lr.End_date, lr.Reason
+FROM LeaveRecord lr
+JOIN Employee e ON lr.EmployeeID = e.EmployeeID
+WHERE lr.Status = 'PENDING'
+ORDER BY lr.created_at DESC;
+Get attendance rate by department:
+sql
+SELECT 
+    d.Department_name,
+    COUNT(DISTINCT e.EmployeeID) as total_employees,
+    COUNT(DISTINCT CASE WHEN a.Status = 'PRESENT' THEN a.EmployeeID END) as present_count,
+    ROUND(COUNT(DISTINCT CASE WHEN a.Status = 'PRESENT' THEN a.EmployeeID END) * 100.0 / COUNT(DISTINCT e.EmployeeID), 2) as attendance_rate
+FROM Department d
+JOIN Employee e ON d.DepartmentID = e.DepartmentID
+LEFT JOIN Attendance a ON e.EmployeeID = a.EmployeeID AND a.WorkDate = CURDATE()
+GROUP BY d.DepartmentID, d.Department_name;
+7.4 Git Workflow
+
+**Branching Strategy:**
+```
+main (production-ready)
+  ├── develop (latest development)
+  │   ├── feature/employee-management
+  │   ├── feature/attendance-tracking
+  │   └── feature/leave-system
+  └── hotfix/critical-bug-fix
+```
+
+**Commit Message Format:**
+```
+<type>(<scope>): <subject>
+
+[optional body]
+[optional footer]
+
+Types: feat, fix, docs, style, refactor, test, chore
+Example: feat(attendance): add check-in validation
+Useful Git Commands:
+bash
+ Create feature branch
+git checkout -b feature/new-feature
+
+ Commit changes
+git add .
+git commit -m "feat(module): add new feature"
+
+ Push to remote
+git push origin feature/new-feature
+
+ Merge to develop
+git checkout develop
+git merge feature/new-feature
+
+ Tag release
+git tag -a v1.0.0 -m "Release version 1.0.0"
+git push origin v1.0.0
+
 
 
