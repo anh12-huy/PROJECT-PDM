@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Department - Employee Attendance System</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script type="module">
+        import { checkLogin, checkRole, getUser } from "./js/App.js";
+        checkLogin();
+        checkRole(['ADMIN', 'MANAGER', 'EMPLOYEE']);
+    </script>
+</head>
+
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>🏢 Attendance</h2>
+                <p>Management System</p>
+            </div>
+            <nav class="sidebar-nav">
+                <li><a href="Dashboard.html">📊 Dashboard</a></li>
+                <li><a href="Employees.html">👥 Employees</a></li>
+                <li><a href="Attendance.html">✓ Attendance</a></li>
+                <li><a href="Department.html" class="active">🏭 Department</a></li>
+                <li><a href="Shifts.html">⏰ Shifts</a></li>
+                <li><a href="Holiday.html">🎉 Holiday</a></li>
+                <li><a href="LeaveRecords.html">📋 Leave Records</a></li>
+            </nav>
+            <div class="sidebar-footer">
+                <button id="logoutBtn" class="btn btn-danger btn-block">Logout</button>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+            <!-- TOPBAR -->
+            <div class="topbar">
+                <div class="topbar-title">
+                    <h1>Departments</h1>
+                </div>
+                <div class="user-info">
+                    <div class="user-avatar">A</div>
+                    <div class="user-details">
+                        <span class="user-name">Admin</span>
+                        <span class="user-role">Administrator</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CREATE DEPARTMENT CARD -->
+            <div class="card mb-10">
+                <div class="card-header">
+                    <h3>🏢 Create Department</h3>
+                </div>
+                <div class="card-body">
+                    <form id="deptForm" class="form-row">
+                        <div class="form-group">
+                            <label for="deptName">Department Name</label>
+                            <input type="text" id="deptName" placeholder="Enter department name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="location">Location</label>
+                            <input type="text" id="location" placeholder="Enter location" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="managerId">Manager ID</label>
+                            <input type="text" id="managerId" placeholder="Enter manager employee ID" required>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary btn-block">Create Department</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- DEPARTMENT LIST CARD -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>📋 Department List</h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Department Name</th>
+                                    <th>Location</th>
+                                    <th>Manager ID</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="deptList">
+                                <tr>
+                                    <td colspan="5" style="text-align: center; color: #9ca3af;">Loading departments...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        import { apiGet, apiPost, apiDelete } from "./js/api.js";
+        import { getUser } from "./js/App.js";
+
+        const user = getUser();
+        document.querySelector('.user-name').innerText = user.username;
+        document.querySelector('.user-role').innerText = user.role;
+        document.querySelector('.user-avatar').innerText = user.username.charAt(0).toUpperCase();
+
+        const deptCard = document.querySelector('.card.mb-10');
+        if (user.role === 'EMPLOYEE') {
+            deptCard.style.display = 'none';
+        }
+
+        // Logout handler
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+            window.location.href = "UserLogin.html";
+        });
+
+        // Form submit
+        document.getElementById('deptForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (user.role === 'EMPLOYEE') {
+                alert('You do not have permission to create department!');
+                return;
+            }
+            const data = {
+                departmentName: document.getElementById("deptName").value,
+                location: document.getElementById("location").value,
+                managerEmployeeId: document.getElementById("managerId").value
+            };
+            try {
+                const res = await apiPost("/departments", data);
+                alert("Department created successfully!");
+                document.getElementById('deptForm').reset();
+                loadDepartments();
+            } catch (error) {
+                alert("Error creating department: " + error.message);
+            }
+        });
+
+        // Load departments
+        async function loadDepartments() {
+    try {
+        // Load departments
+        const departments = await apiGet("/departments");
+
+        // Load employees để map id → name
+        const employees = await apiGet("/employees");
+        const employeeMap = {};
+        employees.forEach(e => {
+            employeeMap[e.employeeId] = `${e.firstName} ${e.lastName || ''}`.trim();
+        });
+
+        const tbody = document.getElementById('deptList');
+
+        // Nếu không có dữ liệu
+        if (!Array.isArray(departments) || departments.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="5" style="text-align: center; color: #9ca3af;">
+                        No departments found
+                    </td>
+                </tr>`;
+            return;
+        }
+
+        // Render list
+        tbody.innerHTML = departments.map(d => {
+            // Actions chỉ dành cho ADMIN / MANAGER
+            const actions = user.role !== 'EMPLOYEE'
+                ? `<button class="btn btn-sm btn-danger" onclick="deleteDept(${d.departmentId})">Delete</button>`
+                : '';
+
+            return `
+                <tr>
+                    <td>${d.departmentId}</td>
+                    <td><strong>${d.departmentName}</strong></td>
+                    <td>${d.departmentCode}</td>
+
+                    <!-- HIỆN TÊN MANAGER (employee) -->
+                    <td>${employeeMap[d.managerEmployeeId] || 'N/A'}</td>
+
+                    <td>${actions}</td>
+                </tr>
+            `;
+        }).join('');
+
+    } catch (error) {
+        console.error("Error loading departments:", error);
+        document.getElementById('deptList').innerHTML = `
+            <tr>
+                <td colspan="5" style="text-align: center; color: #ef4444;">
+                    Error loading departments
+                </td>
+            </tr>`;
+    }
+}
+
+
+        // Delete department
+        window.deleteDept = async (id) => {
+            if (user.role === 'EMPLOYEE') {
+                alert('You do not have permission to delete department!');
+                return;
+            }
+            if (!confirm("Are you sure you want to delete this department?")) return;
+            try {
+                await apiDelete("/departments/" + id);
+                alert("Department deleted successfully!");
+                loadDepartments();
+            } catch (error) {
+                alert("Error deleting department: " + error.message);
+            }
+        };
+
+        // Load on page load
+        loadDepartments();
+    </script>
+</body>
+
+</html>

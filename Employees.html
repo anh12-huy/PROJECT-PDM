@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employees - Employee Attendance System</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="js/api.js"></script>
+    <script type="module">
+        import { checkLogin, checkRole, getUser } from "./js/App.js";
+        // checkLogin(); // Temporarily disabled for testing
+        // checkRole(['ADMIN', 'MANAGER', 'EMPLOYEE']); // Temporarily disabled for testing
+    </script>
+</head>
+
+<body>
+    <div class="layout">
+        <!-- SIDEBAR -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>🏢 Attendance</h2>
+                <p>Management System</p>
+            </div>
+            <nav class="sidebar-nav" id="sidebarNav">
+                <li><a href="Dashboard.html">📊 Dashboard</a></li>
+                <li><a href="Employees.html" class="active">👥 Employees</a></li>
+                <li><a href="Attendance.html">✓ Attendance</a></li>
+                <li><a href="Department.html">🏭 Department</a></li>
+                <li><a href="Shifts.html">⏰ Shifts</a></li>
+                <li><a href="Holiday.html">🎉 Holiday</a></li>
+                <li><a href="LeaveRecords.html">📋 Leave Records</a></li>
+            </nav>
+            <div class="sidebar-footer">
+                <button id="logoutBtn" class="btn btn-danger btn-block">Logout</button>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+            <!-- TOPBAR -->
+            <div class="topbar">
+                <div class="topbar-title">
+                    <h1 id="pageTitle">Employees</h1>
+                </div>
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">A</div>
+                    <div class="user-details">
+                        <span class="user-name" id="userName">Admin</span>
+                        <span class="user-role" id="userRole">Administrator</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ACTIONS CARD -->
+            <div class="card mb-10">
+                <div class="card-body" style="display: flex; gap: 10px; align-items: center;">
+                    <button class="btn btn-primary" id="addEmployeeBtn">+ Add New Employee</button>
+                </div>
+            </div>
+
+            <!-- EMPLOYEES TABLE -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>👥 Employee List</h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Department</th>
+                                    <th>Joining Date</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="employeeTableBody">
+                                <tr>
+                                    <td colspan="8" style="text-align: center; color: #9ca3af;">Loading employees...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- ADD/EDIT EMPLOYEE MODAL -->
+    <div id="employeeModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <h3 id="modalTitle">Add New Employee</h3>
+            <form id="employeeForm">
+                <div class="form-group">
+                    <label for="firstName">First Name</label>
+                    <input type="text" id="firstName" name="firstName" required />
+                </div>
+                <div class="form-group">
+                    <label for="lastName">Last Name</label>
+                    <input type="text" id="lastName" name="lastName" required />
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required />
+                </div>
+                <div class="form-group">
+                    <label for="departmentId">Department</label>
+                    <select id="departmentId" name="departmentId" required>
+                        <option value="">Select Department</option>
+                        <!-- Option list loaded dynamically -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="dateOfBirth">Date of Birth</label>
+                    <input type="date" id="dateOfBirth" name="dateOfBirth" required />
+                </div>
+                <!-- status không gửi lên backend, chỉ dùng local để hiển thị -->
+                <div class="form-group">
+                    <label>Status</label>
+                    <input type="text" id="status" name="status" readonly value="Active" />
+                </div>
+                <div class="form-actions">
+                    <button type="submit" id="saveBtn">Save</button>
+                    <button type="button" id="cancelBtn">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <script type="module">
+        import { apiGet, apiPost, apiPut, apiDelete } from "./js/api.js";
+        import { getUser } from "./js/App.js";
+
+            const user = getUser();
+            
+            if (user.role === 'EMPLOYEE') {
+                document.getElementById('addEmployeeBtn').style.display = 'none';
+                document.getElementById('pageTitle').innerText = 'My Profile';
+                document.querySelector('th:last-child').style.display = 'none';
+            }
+
+            let currentEditId = null; // null = create, not null = edit
+
+            // Load departments vào dropdown select trong form
+            async function loadDepartments() {
+                try {
+                    const departments = await apiGet("/departments");
+                    const deptSelect = document.getElementById("departmentId");
+                    deptSelect.innerHTML = '<option value="">Select Department</option>';
+                    if (Array.isArray(departments)) {
+                        departments.forEach(d => {
+                            deptSelect.innerHTML += `<option value="${d.departmentId}">${d.departmentName}</option>`;
+                        });
+                    }
+                } catch (err) {
+                    console.error("Error loading departments", err);
+                }
+            }
+
+            // Load danh sách employees
+            async function loadEmployees() {
+    const tbody = document.getElementById("employeeTableBody");
+    try {
+        const url = user.role === 'EMPLOYEE' ? `/employees/${user.userId}` : '/employees';
+        let employeesData = await apiGet(url);
+        let employees = Array.isArray(employeesData) ? employeesData : [employeesData];
+
+        let deptData = await apiGet("/departments");
+        let department = Array.isArray(deptData) ? deptData : [deptData];
+
+        // Tạo map để truy nhanh tên phòng ban
+        const departmentMap = {};
+        department.forEach(d => {
+            departmentMap[d.departmentId] = d.departmentName;
+        });
+
+        if (employees.length > 0) {
+            tbody.innerHTML = employees.map(emp => {
+                const actions = user.role === 'EMPLOYEE' ? '' :
+                    `<button class="btn btn-sm btn-primary" onclick="editEmployee(${emp.employeeId})">Edit</button>
+                     <button class="btn btn-sm btn-danger" onclick="deleteEmployee(${emp.employeeId})">Delete</button>`;
+
+                return `
+                    <tr>
+                        <td>${emp.employeeId}</td>
+                        <td>${emp.firstName} ${emp.lastName || ''}</td>
+                        <td>${emp.email}</td>
+
+                        <!-- CHỖ NÀY ĐÃ ĐỔI -->
+                        <td>${departmentMap[emp.departmentId] || 'Unknown'}</td>
+
+                        <td>${emp.hiredDate ? new Date(emp.hiredDate).toLocaleDateString() : ''}</td>
+                        <td><span class="badge badge-success">${emp.status || 'Active'}</span></td>
+                        <td${user.role === 'EMPLOYEE' ? ' style="display:none;"' : ''}>${actions}</td>
+                    </tr>
+                `;
+            }).join('');
+        } else {
+            const colspan = user.role === 'EMPLOYEE' ? 6 : 7;
+            tbody.innerHTML = `<tr><td colspan="${colspan}" style="text-align:center;">No employees found</td></tr>`;
+        }
+        } catch (err) {
+            console.error("Error loading employees:", err);
+            const colspan = user.role === 'EMPLOYEE' ? 6 : 7;
+            tbody.innerHTML = `<tr><td colspan="${colspan}" style="text-align:center; color: #ef4444;">Error loading employees</td></tr>`;
+        }
+    }
+
+
+            // Mở modal form cho tạo mới employee
+            document.getElementById("addEmployeeBtn").addEventListener("click", () => {
+                currentEditId = null;
+                document.getElementById("modalTitle").innerText = "Add New Employee";
+                document.getElementById("employeeForm").reset();
+                document.getElementById("status").value = "Active"; // mặc định
+                document.getElementById("employeeModal").style.display = "flex";
+            });
+
+            // Đóng modal
+            document.getElementById("cancelBtn").addEventListener("click", () => {
+                document.getElementById("employeeModal").style.display = "none";
+            });
+
+            // Submit form tạo hoặc cập nhật employee
+            document.getElementById("employeeForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    console.log("Submit event triggered");
+
+    const depSelect = document.getElementById("departmentId");
+    console.log("department select element:", depSelect);
+
+    const depValue = depSelect ? depSelect.value : undefined;
+    console.log("departmentId raw:", depValue);
+    const depNumber = Number(depValue);
+    console.log("departmentId number:", depNumber);
+
+    const empData = {
+        firstName: document.getElementById("firstName").value.trim(),
+        lastName: document.getElementById("lastName").value.trim(),
+        email: document.getElementById("email").value.trim(),
+        departmentId: depNumber,
+        dateOfBirth: document.getElementById("dateOfBirth").value
+    };
+    try{
+    if (
+        !empData.firstName ||
+        !empData.lastName ||
+        !empData.email ||
+        depValue === "" ||
+        !empData.dateOfBirth
+    ) {
+        alert("Please fill all required fields!");
+        return;
+    }
+
+            if (currentEditId === null) {
+                await apiPost("/employees", empData);
+                alert("Employee created successfully");
+            } else {
+                await apiPut(`/employees/${currentEditId}`, empData);
+                alert(`Employee ${currentEditId} updated successfully`);
+            }
+
+            document.getElementById("employeeModal").style.display = "none";
+            loadEmployees();
+        } catch (err) {
+            alert("Error saving employee: " + err.message);
+        }
+    });
+
+
+            // Sửa employee - load dữ liệu nhân viên lên form, mở modal
+            window.editEmployee = async (id) => {
+                try {
+                    const emp = await apiGet(`/employees/${id}`);
+                    if (!emp) {
+                        alert("Employee not found");
+                        return;
+                    }
+                    currentEditId = id;
+                    document.getElementById("modalTitle").innerText = `Edit Employee #${id}`;
+                    document.getElementById("firstName").value = emp.firstName || "";
+                    document.getElementById("lastName").value = emp.lastName || "";
+                    document.getElementById("email").value = emp.email || "";
+                    document.getElementById("departmentId").value = emp.departmentId || "";
+                    document.getElementById("dateOfBirth").value = emp.dateOfBirth ? emp.dateOfBirth.split("T")[0] : "";
+                    document.getElementById("status").value = emp.status || "Active";
+
+                    document.getElementById("employeeModal").style.display = "flex";
+                } catch (err) {
+                    alert("Error loading employee details: " + err.message);
+                }
+            };
+
+            // Xóa employee
+            window.deleteEmployee = async (id) => {
+                if (!confirm(`Delete employee ${id}?`)) return;
+
+                try {
+                    await apiDelete(`/employees/${id}`);
+                    alert(`Employee ${id} deleted`);
+                    loadEmployees();
+                } catch (err) {
+                    alert("Error deleting employee: " + err.message);
+                }
+            };
+
+            // Khi trang load
+            window.onload = () => {
+                loadDepartments();
+                loadEmployees();
+            };
+
+        async function loadUserProfile() {
+            const user = getUser();
+                document.querySelector('.user-name').innerText = user.username;
+                document.querySelector('.user-role').innerText = user.role;
+                document.querySelector('.user-avatar').innerText = user.username.charAt(0).toUpperCase();
+            }
+
+            window.addEventListener("DOMContentLoaded", loadUserProfile);
+
+    </script>
+</body>
+
+</html>

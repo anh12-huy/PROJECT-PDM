@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Holiday - Employee Attendance System</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script type="module">
+        import { checkLogin, checkRole } from "./js/App.js";
+        checkLogin();
+        checkRole(['ADMIN', 'MANAGER', 'EMPLOYEE']);
+    </script>
+</head>
+
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>🏢 Attendance</h2>
+                <p>Management System</p>
+            </div>
+            <nav class="sidebar-nav">
+                <li><a href="Dashboard.html">📊 Dashboard</a></li>
+                <li><a href="Employees.html">👥 Employees</a></li>
+                <li><a href="Attendance.html">✓ Attendance</a></li>
+                <li><a href="Department.html">🏭 Department</a></li>
+                <li><a href="Shifts.html">⏰ Shifts</a></li>
+                <li><a href="Holiday.html" class="active">🎉 Holiday</a></li>
+                <li><a href="LeaveRecords.html">📋 Leave Records</a></li>
+            </nav>
+            <div class="sidebar-footer">
+                <button id="logoutBtn" class="btn btn-danger btn-block">Logout</button>
+            </div>
+        </aside>
+        <main class="main-content">
+            <div class="topbar">
+                <div class="topbar-title">
+                    <h1>Holidays</h1>
+                </div>
+                <div class="user-info">
+                    <div class="user-avatar">A</div>
+                    <div class="user-details">
+                        <span class="user-name">Admin</span>
+                        <span class="user-role">Administrator</span>
+                    </div>
+                </div>
+            </div>
+            <div class="card mb-10">
+                <div class="card-header">
+                    <h3>🎉 Add Holiday</h3>
+                </div>
+                <div class="card-body">
+                    <form id="holidayForm" class="form-row">
+                <div class="form-group">
+                    <label>Holiday Name</label>
+                    <input type="text" id="holidayName" required>
+                </div>
+                <div class="form-group">
+                    <label>Holiday Date</label>
+                    <input type="date" id="holidayDate" required>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary btn-block">Add Holiday</button>
+                </div>
+                    </form>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h3>📅 Holiday List</h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Holiday Name</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="holidayList">
+                                <tr>
+                                    <td colspan="4" style="text-align: center;">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script type="module">
+        import { apiGet, apiPost, apiDelete } from "./js/api.js";
+        import { getUser } from "./js/App.js";
+        document.getElementById('logoutBtn').onclick = () => { localStorage.clear(); location.href = 'UserLogin.html'; };
+        const user = getUser();
+        document.querySelector('.user-name').innerText = user.username;
+        document.querySelector('.user-role').innerText = user.role;
+        document.querySelector('.user-avatar').innerText = user.username.charAt(0).toUpperCase();
+
+        const holidayCard = document.querySelector('.card.mb-10');
+        if (user.role === 'EMPLOYEE') {
+            holidayCard.style.display = 'none';
+        }
+
+        document.getElementById('holidayForm').onsubmit = async (e) => {
+            e.preventDefault();
+            if (user.role === 'EMPLOYEE') {
+                alert('You do not have permission to create holiday!');
+                window.location.href = 'Dashboard.html';
+                return;
+            }
+            try {
+                const holidayData = {
+                    holidayName: document.getElementById('holidayName').value,
+                    holidayDate: document.getElementById('holidayDate').value
+                };
+                await apiPost('/holidays', holidayData);
+                alert("Holiday added successfully!");
+                document.getElementById('holidayForm').reset();
+                load();
+            } catch (err) {
+                alert("You do not have permission to create holiday. Redirecting to dashboard...");
+                window.location.href = 'Dashboard.html';
+            }
+        };
+        async function load() {
+            try {
+                const holidays = await apiGet('/holidays');
+                if (Array.isArray(holidays)) {
+                    document.getElementById('holidayList').innerHTML = holidays.map(h => {
+                        const actions = user.role !== 'EMPLOYEE' ? `<button class="btn btn-sm btn-danger" onclick="deleteHoliday(${h.holidayId})">Delete</button>` : '';
+                        return `<tr><td>${h.holidayId}</td><td>${h.holidayName}</td><td>${h.holidayDate}</td><td>${actions}</td></tr>`;
+                    }).join('');
+                } else {
+                    document.getElementById('holidayList').innerHTML = '<tr><td colspan="4" style="text-align: center; color: #9ca3af;">No holidays found</td></tr>';
+                }
+            } catch (e) { console.error(e); }
+        }
+        window.deleteHoliday = async (id) => {
+            if (user.role === 'EMPLOYEE') {
+                alert('You do not have permission to delete holiday!');
+                return;
+            }
+            if (!confirm("Are you sure you want to delete this holiday?")) return;
+            try {
+                await apiDelete(`/holidays/${id}`);
+                alert("Holiday deleted successfully!");
+                load();
+            } catch (err) {
+                alert("Error deleting holiday: " + err.message);
+            }
+        };
+        load();
+    </script>
+</body>
+
+</html>
