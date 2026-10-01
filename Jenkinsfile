@@ -3,7 +3,9 @@ pipeline {
     agent any
 
     environment {
-        PATH = "C:\\Users\\taman\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin;${env.PATH}"
+        environment {
+            PATH = "C:\\Users\\taman\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin;C:\\Users\\taman\\AppData\\Local\\Microsoft\\WinGet\\Packages\\AquaSecurity.Trivy_Microsoft.Winget.Source_8wekyb3d8bbwe;${env.PATH}"
+        }   
     }
 
     stages {
@@ -40,7 +42,13 @@ pipeline {
                 bat 'docker build -t employee-attendance:test .'
             }
         }
-
+        stage('Security') {
+            steps {
+                bat '''
+                trivy image --scanners vuln --severity HIGH,CRITICAL --exit-code 0 employee-attendance:test
+                '''
+            }
+        }
         stage('Deploy') {
             steps {
                 bat 'docker rm -f employee-attendance-test 2>NUL || exit /b 0'

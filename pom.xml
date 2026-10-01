@@ -110,6 +110,16 @@
                 <includeTestSourceDirectory>true</includeTestSourceDirectory>
             </configuration>
         </plugin>
+
+        <plugin>
+            <groupId>org.owasp</groupId>
+            <artifactId>dependency-check-maven</artifactId>
+            <version>12.1.8</version>
+            <configuration>
+                <failBuildOnCVSS>11</failBuildOnCVSS>
+                <format>HTML</format>
+            </configuration>
+        </plugin>
       </plugins>
       
   </build>
