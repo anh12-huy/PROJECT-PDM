@@ -49,6 +49,12 @@ pipeline {
                 '''
             }
         }
+        stage('Release') {
+            steps {
+                bat 'docker tag employee-attendance:test employee-attendance:build-%BUILD_NUMBER%'
+                bat 'docker image inspect employee-attendance:build-%BUILD_NUMBER%'
+            }
+        }
         stage('Deploy') {
             steps {
                 bat 'docker rm -f employee-attendance-test 2>NUL || exit /b 0'
