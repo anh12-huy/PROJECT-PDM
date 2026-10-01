@@ -83,7 +83,13 @@ pipeline {
             }
         }
     }
-
+    stage('Monitoring') {
+        steps {
+            bat '''
+            powershell -NoProfile -Command "$health = Invoke-RestMethod -Uri 'http://localhost:8081/actuator/health'; $metrics = Invoke-RestMethod -Uri 'http://localhost:8081/actuator/metrics'; Write-Host 'Application Status:' $health.status; Write-Host 'Available Metrics:' $metrics.names.Count; if ($health.status -ne 'UP' -or $metrics.names.Count -eq 0) { exit 1 }"
+            '''
+        }
+    }
     post {
         success {
             echo 'Build, tests, Docker deployment and health check succeeded.'
