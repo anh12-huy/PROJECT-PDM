@@ -30,7 +30,11 @@ pipeline {
                 }
             }
         }
-
+        stage('Code Quality') {
+            steps {
+                bat 'mvn -B checkstyle:check'
+            }
+        }
         stage('Docker Build') {
             steps {
                 bat 'docker build -t employee-attendance:test .'
