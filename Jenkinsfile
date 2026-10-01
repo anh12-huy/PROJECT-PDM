@@ -2,11 +2,11 @@
 pipeline {
     agent any
 
+    
     environment {
-        environment {
-            PATH = "C:\\Users\\taman\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin;C:\\Users\\taman\\AppData\\Local\\Microsoft\\WinGet\\Packages\\AquaSecurity.Trivy_Microsoft.Winget.Source_8wekyb3d8bbwe;${env.PATH}"
+        PATH = "C:\\Users\\taman\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin;C:\\Users\\taman\\AppData\\Local\\Microsoft\\WinGet\\Packages\\AquaSecurity.Trivy_Microsoft.Winget.Source_8wekyb3d8bbwe;${env.PATH}"
         }   
-    }
+    
 
     stages {
         stage('Checkout') {
